@@ -1,0 +1,41 @@
+/*
+ * CSS specific for Munchi Gobbler
+ */
+body {
+  font-family: 'Architects Daughter', Helvetica, sans-serif;
+  font-size: 20px;
+}
+
+header h1 {
+  font-size: 4em;
+  color: #3d10d2;
+  text-shadow: 0 0 10px #c7e451;
+  padding-top: 10px;
+  margin: auto;
+}
+
+nav {
+  background-color: #c7e451;
+  color: 3d10d2;
+}
+
+nav .menu-level-1 {
+  background-color: #3d10d2;
+  color: #c7e451;
+  transition: color .5s, background-color .5s;
+}
+
+nav .menu-level-1:hover {
+  background-color: #c7e451;
+  color: #3d10d2;
+}
+
+main {}
+
+footer .ga-link-text:hover {
+  text-shadow: 0 0 2px #c7e451;
+}
+
+footer .ga-link-icon {
+  text-shadow: 0 0 2px #c7e451;
+}

@@ -1,7 +1,11 @@
+const gameName = 'Munchie Gobbler';
+
 class MunchieGobblerGame {
   constructor() {
     super.constructor();
-    setTitle('Munchie Gobbler: a game by Seanny Drakon Phoenix');
+    setTitle(gameName);
+    setMenu();
+    setFooter();
   }
 }
 

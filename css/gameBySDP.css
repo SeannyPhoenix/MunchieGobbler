@@ -1,0 +1,100 @@
+/*
+ * Standard wrapper CSS for all pages 'game by Seanny Drakon Phoenix'
+ */
+* {
+  box-sizing: border-box;
+}
+
+body>* {
+  width: 800px;
+  margin: auto;
+}
+
+header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 120px;
+}
+
+header p {
+  padding-bottom: 15px;
+}
+
+/*
+ * Navigation Menu
+ */
+nav {
+  height: 50px;
+}
+
+nav * {
+  height: 50px;
+  line-height: 50px;
+}
+
+nav .menu-level-1 {
+  /* width: 150px; */
+  float: left;
+}
+
+nav .menu-level-1 i {
+  font-size: .8em;
+  line-height: 50px;
+  padding: 0 5px;
+  float: left;
+}
+
+nav .menu-level-1 p {
+  float: left;
+  padding-right: 5px;
+}
+
+main {
+  height: 600px;
+}
+
+footer * {
+  height: 50px;
+  line-height: 50px;
+}
+
+footer .copyright {
+  float: left;
+  margin: 5px;
+}
+
+footer .ga-link {
+  float: right;
+  margin: 5px;
+}
+
+footer .ga-icon {
+  width: 50px;
+  background-image: url('https://ga-dash.s3.amazonaws.com/production/assets/logo-9f88ae6c9c3871690e33280fcf557f33.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  float: right;
+}
+
+footer .ga-link-text {
+  margin: 0 5px;
+  float: right;
+  transition: text-shadow .5s;
+}
+
+footer .ga-link-text:hover {
+  text-shadow: 0 0 2px;
+}
+
+footer .ga-link-icon {
+  font-size: .8em;
+  line-height: 50px;
+  opacity: 0;
+  transition: opacity .5s;
+  float: right;
+}
+
+footer .show {
+  opacity: 1;
+}
