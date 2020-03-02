@@ -43,7 +43,20 @@ const menu = [{
   }
 ];
 
-function addMenuItem(item) {
-  console.log(Object.keys(item));
-  menu.push(item);
+
+class Menu {
+  constructor() {
+    super.constructor();
+    this.menu = menu;
+  }
+
+  addItem(item) {
+    console.log(Object.keys(item));
+    menu.push(item);
+  }
+
+  getAllItems() {
+    //return a copy of the menu; we don't want anyone modifying it externally
+    return menu.slice();
+  }
 }

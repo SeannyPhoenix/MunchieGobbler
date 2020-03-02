@@ -12,9 +12,9 @@ function setTitle(gameTitle) {
   header.appendChild(sub);
 }
 
-function setMenu() {
+function setMenu(menu) {
 
-  addMenuItem({
+  menu.addItem({
     title: 'Options',
     type: 'click',
     icon: 'fa-cog',
@@ -24,7 +24,7 @@ function setMenu() {
   console.log(menu);
 
   let menuNav = document.querySelector('nav');
-  menu.forEach((menuItem, i) => {
+  menu.getAllItems().forEach((menuItem, i) => {
     switch (menuItem.type) {
       case 'heading':
         let header = document.createElement('div');
@@ -36,7 +36,6 @@ function setMenu() {
         header.appendChild(icon);
         header.appendChild(text);
         menuNav.appendChild(header);
-
     }
   });
 }
