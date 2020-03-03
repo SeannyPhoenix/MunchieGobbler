@@ -24,37 +24,23 @@ function setTitle(gameTitle) {
 
 function setMenu(menu) {
 
-  menu.addItem({
-    title: 'Options',
-    type: 'click',
-    icon: 'fa-cog',
-    action: null,
-  });
-
   menu.getAllItems().forEach((menuItem, i) => {
     let header, icon, text;
+    header = document.createElement('div');
+    header.className = 'menu-level-1';
+    icon = document.createElement('i');
+    icon.classList.add('fas', menuItem.icon);
+    text = document.createElement('p');
+    text.innerText = menuItem.title;
+    header.appendChild(icon);
+    header.appendChild(text);
+    header.setAttribute('style', `float: ${menuItem.float};`);
+    elems.menu.appendChild(header);
     switch (menuItem.type) {
       case 'heading':
-        header = document.createElement('div');
-        header.className = 'menu-level-1';
-        icon = document.createElement('i');
-        icon.classList.add('fas', menuItem.icon);
-        text = document.createElement('p');
-        text.innerText = menuItem.title;
-        header.appendChild(icon);
-        header.appendChild(text);
-        elems.menu.appendChild(header);
         break;
       case 'click':
-        header = document.createElement('div');
-        header.className = 'menu-level-1';
-        icon = document.createElement('i');
-        icon.classList.add('fas', menuItem.icon);
-        text = document.createElement('p');
-        text.innerText = menuItem.title;
-        header.appendChild(icon);
-        header.appendChild(text);
-        elems.menu.appendChild(header);
+        header.addEventListener('click', menuItem.action)
         break;
       default:
         break;

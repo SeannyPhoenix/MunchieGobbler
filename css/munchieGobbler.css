@@ -95,6 +95,30 @@ main {}
 
 .munchie {
   background-color: blue;
+  border-radius: 15%;
+  animation: dance 2s infinite;
+}
+
+@keyframes dance {
+  0% {
+    transform: scale(.8);
+  }
+
+  50% {
+    transform: rotate(0deg);
+  }
+
+  75% {
+    transform: rotate(360deg);
+  }
+
+  100% {
+    transform: scale(.8);
+  }
+}
+
+.munchie .cupcake {
+  background-color: pink;
 }
 
 footer .ga-link-text:hover {

@@ -13,11 +13,12 @@ const menu = [{
         action: null,
       }
     ],
+    float: 'left',
   },
   {
     title: 'Seanny',
     type: 'heading',
-    icon: 'fa-link',
+    icon: 'fa-globe-americas',
     action: [{
         title: 'Facebook',
         type: 'link',
@@ -34,6 +35,7 @@ const menu = [{
         action: 'https://www.instagram.com/thatseannyboy/',
       },
     ],
+    float: 'left',
   },
 ];
 
