@@ -122,29 +122,20 @@ class MunchieGobblerGame {
    * Attach event handlers
    */
   constructor() {
-    initializeTitle(gameName);
+    buildTitle(gameName);
 
-    this.menu = new Menu();
-    this.menu.addItem({
-      title: 'Options',
-      type: 'click',
-      icon: 'fa-cog',
-      action: this.displayOptions.bind(this),
-      float: 'right',
-    });
-    initializeMenu(this.menu);
+    this.setMenu();
+    buildMenu(this.menu);
 
-    initializePlayingField();
-    initializeFooter();
+    buildPlayingField();
 
-    this.setOptions({
-      boardX: 7,
-      boardY: 7,
-      obstacles: 'none',
-      munchies: 'average',
-      dialog: false,
-    });
-    initializeOptions();
+    this.setOptions();
+    buildOptions(this.options);
+
+    this.setInstructions();
+    buildInstructions(this.instructions);
+
+    buildFooter();
   }
 
   /*
@@ -154,6 +145,8 @@ class MunchieGobblerGame {
     console.log('New Game');
 
     this.gameBoard = new GameBoard(this.options.boardX, this.options.boardY);
+
+    this.player = 'Player 1';
 
     let blobCoods = randomizeCoordinates(this.gameBoard.getDimensions());
 
@@ -222,20 +215,91 @@ class MunchieGobblerGame {
   /*
    *
    */
-  setPlayer() {}
+  switchPlayer() {
+    switch (this.player) {
+      case 'Player 1':
+        this.player = 'Player 2';
+        break;
+      default:
+        this.player = 'Player 1';
+    }
+  }
 
   takeTurn() {}
 
-  displayOptions() {
-    this.options.dialog = !this.options.dialog;
-    showOptions(this.options.dialog);
+  setMenu() {
+    this.menu = new Menu();
+    this.menu.addItem({
+      title: 'Options',
+      type: 'click',
+      icon: 'fa-cog',
+      action: this.displayOptions.bind(this),
+      float: 'right',
+    });
+    this.menu.addItem({
+      title: 'Instructions',
+      type: 'click',
+      icon: 'fa-file-alt',
+      action: this.displayInstructions.bind(this),
+      float: 'right',
+    })
   }
 
-  setOptions(options) {
-    this.options = options;
+  setOptions() {
+    this.options = {
+      boardX: 7,
+      boardY: 7,
+      obstacles: 'none',
+      munchies: 'average',
+      buttons: [{
+          text: 'Cancel',
+          style: 'button-2',
+          action: this.displayOptions.bind(this),
+        },
+        {
+          text: 'Save',
+          style: 'button-1',
+          action: this.displayOptions.bind(this),
+        }
+      ],
+      show: false,
+    };
+  }
+
+  displayOptions() {
+    this.options.show = !this.options.show;
+    this.instructions.show = false;
+    showPage(this.options.show, this.instructions.show);
+  }
+
+  setInstructions() {
+    this.instructions = {
+      title: 'Munchie Gobbler: Instructions',
+      paragraphs: [{
+          heading: 'Game Board',
+          text: '',
+        },
+        {
+          heading: 'Gameplay',
+          text: '',
+        }
+      ],
+      buttons: [{
+        text: 'Done',
+        style: 'button-1',
+        action: this.displayInstructions.bind(this),
+      }, ],
+      show: false,
+    };
+  }
+
+  displayInstructions() {
+    this.instructions.show = !this.instructions.show;
+    this.options.show = false;
+    showPage(this.options.show, this.instructions.show);
   }
 
 }
 
 let thisGame = new MunchieGobblerGame();
-thisGame.startGame();
+// thisGame.startGame();

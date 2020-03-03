@@ -1,5 +1,5 @@
 /*
- * CSS specific for Munchi Gobbler
+ * CSS specific for Munchie Gobbler
  */
 * {
   --yellow: #c7e451;
@@ -84,7 +84,7 @@ aside {
   align-items: center;
 }
 
-.options {
+.page {
   height: 0px;
   width: 500px;
   position: absolute;
@@ -95,24 +95,28 @@ aside {
   overflow: hidden;
 }
 
-.cancel-button {
+.options {}
+
+.instructions {}
+
+button {
   height: 35px;
   width: 75px;
   position: absolute;
-  bottom: 30px;
-  right: 125px;
   background-color: var(--blue);
   color: var(--yellow);
+  font-family: 'Architects Daughter', Ariel, sans-serif;
+  font-size: 1em;
 }
 
-.save-button {
-  height: 35px;
-  width: 75px;
-  position: absolute;
+.button-1 {
   bottom: 30px;
   right: 25px;
-  background-color: var(--blue);
-  color: var(--yellow);
+}
+
+.button-2 {
+  bottom: 30px;
+  right: 125px;
 }
 
 .show {

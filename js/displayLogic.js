@@ -6,6 +6,7 @@ const elems = {
   leftBar: null,
   playingField: null,
   options: null,
+  instructions: null,
   rightBar: null,
   display: null,
   footer: document.querySelector('footer'),
@@ -14,18 +15,21 @@ const elems = {
 /*
  * Sets the title and header content
  */
-function initializeTitle(gameTitle) {
+function buildTitle(gameTitle) {
   elems.title.innerText = gameTitle;
   let title = document.createElement('h1');
   title.innerText = gameTitle;
   elems.header.appendChild(title);
-  let sub = document.createElement('h4');
+  let sub = document.createElement('p');
   sub.innerText = 'a game by Seanny Drakon Phoenix';
   elems.header.appendChild(sub);
 }
 
-function initializeMenu(menu) {
+/*
+ * Build Menu
+ */
 
+function buildMenu(menu) {
   menu.getAllItems().forEach((menuItem, i) => {
     let header, icon, text;
     header = document.createElement('div');
@@ -52,7 +56,7 @@ function initializeMenu(menu) {
   });
 }
 
-function initializePlayingField() {
+function buildPlayingField() {
   elems.leftBar = document.createElement('aside');
   elems.leftBar.className = 'left-bar';
   elems.playingField = document.createElement('div');
@@ -68,7 +72,58 @@ function initializePlayingField() {
   elems.main.appendChild(elems.display);
 }
 
-function initializeFooter() {
+/*
+ * Build Options Page
+ */
+function buildOptions(options) {
+  elems.options = document.createElement('div');
+  elems.options.classList.add('page', 'options');
+  elems.playingField.appendChild(elems.options);
+
+  options.buttons.forEach(button => {
+    let btn = document.createElement('button');
+    btn.classList.add(button.style);
+    btn.addEventListener('click', button.action);
+    btn.innerText = button.text;
+    elems.options.appendChild(btn);
+  });
+}
+
+/*
+ * Build Instructions Page
+ */
+function buildInstructions(instructions) {
+  elems.instructions = document.createElement('div');
+  elems.instructions.classList.add('page', 'instructions');
+  elems.playingField.appendChild(elems.instructions);
+
+  let title = document.createElement('h2');
+  title.innerText = instructions.title;
+  elems.instructions.appendChild(title);
+
+  instructions.paragraphs.forEach(paragraph => {
+    let heading = document.createElement('h3');
+    heading.innerText = paragraph.heading;
+    elems.instructions.appendChild(heading);
+
+    let text = document.createElement('p');
+    text.innerText = paragraph.text;
+    elems.instructions.appendChild(text);
+  })
+
+  instructions.buttons.forEach(button => {
+    let btn = document.createElement('button');
+    btn.classList.add(button.style);
+    btn.addEventListener('click', button.action);
+    btn.innerText = button.text;
+    elems.instructions.appendChild(btn);
+  });
+}
+
+/*
+ * Build Footer
+ */
+function buildFooter() {
 
   //Copyright Info
   let copyright = document.createElement('p');
@@ -139,33 +194,24 @@ function showBoard(board) {
   elems.playingField.append(gameBoard);
 }
 
-function initializeOptions(doCancel, doSave) {
-  elems.options = document.createElement('div');
-  elems.options.classList.add('options');
-  elems.playingField.appendChild(elems.options);
 
-  let cancel = document.createElement('button');
-  cancel.classList.add('cancel-button');
-  cancel.addEventListener('click', doCancel);
-  elems.options.appendChild(cancel);
-
-  let save = document.createElement('button');
-  save.classList.add('save-button');
-  save.addEventListener('click', doSave);
-  elems.options.appendChild(save);
-
-}
-
-function showOptions(on) {
+function showPage(options, instructions) {
   let mainElements = document.querySelectorAll('aside');
-  for (var i = 0; i < mainElements.length; i++) {
-    if (on) {
+  for (let i = 0; i < mainElements.length; i++) {
+    if (options || instructions) {
       mainElements[i].classList.add('fade');
-      elems.options.classList.add('show');
     } else {
       mainElements[i].classList.remove('fade');
-      elems.options.classList.remove('show');
-
     }
+  }
+  if (options) {
+    elems.options.classList.add('show');
+    elems.instructions.classList.remove('show');
+  } else if (instructions) {
+    elems.options.classList.remove('show');
+    elems.instructions.classList.add('show');
+  } else {
+    elems.options.classList.remove('show');
+    elems.instructions.classList.remove('show');
   }
 }
