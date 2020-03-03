@@ -5,14 +5,16 @@ const elems = {
   main: document.querySelector('main'),
   leftBar: null,
   playingField: null,
+  options: null,
   rightBar: null,
+  display: null,
   footer: document.querySelector('footer'),
 }
 
 /*
  * Sets the title and header content
  */
-function setTitle(gameTitle) {
+function initializeTitle(gameTitle) {
   elems.title.innerText = gameTitle;
   let title = document.createElement('h1');
   title.innerText = gameTitle;
@@ -22,7 +24,7 @@ function setTitle(gameTitle) {
   elems.header.appendChild(sub);
 }
 
-function setMenu(menu) {
+function initializeMenu(menu) {
 
   menu.getAllItems().forEach((menuItem, i) => {
     let header, icon, text;
@@ -38,6 +40,8 @@ function setMenu(menu) {
     elems.menu.appendChild(header);
     switch (menuItem.type) {
       case 'heading':
+        header.addEventListener('mouseover', null);
+        header.addEventListener('mouseout', null);
         break;
       case 'click':
         header.addEventListener('click', menuItem.action)
@@ -50,15 +54,21 @@ function setMenu(menu) {
 
 function initializePlayingField() {
   elems.leftBar = document.createElement('aside');
+  elems.leftBar.className = 'left-bar';
   elems.playingField = document.createElement('div');
   elems.playingField.classList.add('playing-field');
   elems.rightBar = document.createElement('aside');
+  elems.rightBar.className = 'right-bar';
+  elems.display = document.createElement('aside');
+  elems.display.className = 'display';
+
   elems.main.appendChild(elems.leftBar);
   elems.main.appendChild(elems.playingField);
   elems.main.appendChild(elems.rightBar);
+  elems.main.appendChild(elems.display);
 }
 
-function setFooter() {
+function initializeFooter() {
 
   //Copyright Info
   let copyright = document.createElement('p');
@@ -127,4 +137,35 @@ function showBoard(board) {
     gameBoard.appendChild(square);
   }
   elems.playingField.append(gameBoard);
+}
+
+function initializeOptions(doCancel, doSave) {
+  elems.options = document.createElement('div');
+  elems.options.classList.add('options');
+  elems.playingField.appendChild(elems.options);
+
+  let cancel = document.createElement('button');
+  cancel.classList.add('cancel-button');
+  cancel.addEventListener('click', doCancel);
+  elems.options.appendChild(cancel);
+
+  let save = document.createElement('button');
+  save.classList.add('save-button');
+  save.addEventListener('click', doSave);
+  elems.options.appendChild(save);
+
+}
+
+function showOptions(on) {
+  let mainElements = document.querySelectorAll('aside');
+  for (var i = 0; i < mainElements.length; i++) {
+    if (on) {
+      mainElements[i].classList.add('fade');
+      elems.options.classList.add('show');
+    } else {
+      mainElements[i].classList.remove('fade');
+      elems.options.classList.remove('show');
+
+    }
+  }
 }

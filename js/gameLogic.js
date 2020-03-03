@@ -122,7 +122,7 @@ class MunchieGobblerGame {
    * Attach event handlers
    */
   constructor() {
-    setTitle(gameName);
+    initializeTitle(gameName);
 
     this.menu = new Menu();
     this.menu.addItem({
@@ -132,17 +132,19 @@ class MunchieGobblerGame {
       action: this.displayOptions.bind(this),
       float: 'right',
     });
-    setMenu(this.menu);
+    initializeMenu(this.menu);
 
     initializePlayingField();
-    setFooter();
+    initializeFooter();
 
     this.setOptions({
       boardX: 7,
       boardY: 7,
       obstacles: 'none',
       munchies: 'average',
+      dialog: false,
     });
+    initializeOptions();
   }
 
   /*
@@ -225,7 +227,8 @@ class MunchieGobblerGame {
   takeTurn() {}
 
   displayOptions() {
-    console.log(this.options);
+    this.options.dialog = !this.options.dialog;
+    showOptions(this.options.dialog);
   }
 
   setOptions(options) {
@@ -235,3 +238,4 @@ class MunchieGobblerGame {
 }
 
 let thisGame = new MunchieGobblerGame();
+thisGame.startGame();

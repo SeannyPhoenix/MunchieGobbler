@@ -1,31 +1,43 @@
 /*
  * CSS specific for Munchi Gobbler
  */
+* {
+  --yellow: #c7e451;
+  --blue: #3d10d2;
+  --options-fly-timeout: .75s;
+}
+
 body {
   font-family: 'Architects Daughter', Helvetica, sans-serif;
   font-size: 20px;
 }
 
+/*
+ * Header
+ */
 header *, footer * {
-  color: #3d10d2;
+  color: var(--blue);
 }
 
 header h1 {
   font-size: 4em;
-  text-shadow: 0 0 10px #c7e451;
+  text-shadow: 0 0 10px var(--yellow);
   padding-top: 10px;
   margin: auto;
 }
 
+/*
+ * Navigation Bar
+ */
 nav {
-  background-color: #c7e451;
+  background-color: var(--blue);
 }
 
 nav .menu-level-1 {
-  background-color: #3d10d2;
-  color: #c7e451;
+  background-color: var(--blue);
+  color: var(--yellow);
   transition: color .5s, background-color .5s;
-  border-left: solid #c7e451 thin;
+  border-left: solid var(--yellow) thin;
 }
 
 nav .menu-level-1:first-of-type {
@@ -33,11 +45,79 @@ nav .menu-level-1:first-of-type {
 }
 
 nav .menu-level-1:hover {
-  background-color: #c7e451;
-  color: #3d10d2;
+  background-color: var(--yellow);
+  color: var(--blue);
 }
 
-main {}
+/*
+ * Game Area
+ */
+main {
+  display: grid;
+  align-items: stretch;
+  grid-template-columns: 150px 500px 150px;
+  grid-template-rows: 500px 100px;
+  grid-auto-flow: row;
+}
+
+aside {
+  opacity: 1;
+  transition: opacity var(--options-fly-timeout);
+  border: solid var(--yellow) thin;
+}
+
+.fade {
+  opacity: .4;
+}
+
+.left-bar {
+  background-color: var(--blue);
+}
+
+.right-bar {
+  background-color: var(--blue);
+}
+
+.playingField {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.options {
+  height: 0px;
+  width: 500px;
+  position: absolute;
+  background-color: lightgray;
+  transition: height var(--options-fly-timeout);
+  box-shadow: 0 0 20px black;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.cancel-button {
+  height: 35px;
+  width: 75px;
+  position: absolute;
+  bottom: 30px;
+  right: 125px;
+  background-color: var(--blue);
+  color: var(--yellow);
+}
+
+.save-button {
+  height: 35px;
+  width: 75px;
+  position: absolute;
+  bottom: 30px;
+  right: 25px;
+  background-color: var(--blue);
+  color: var(--yellow);
+}
+
+.show {
+  height: 500px;
+}
 
 .game-board {
   width: 0;
@@ -46,12 +126,13 @@ main {}
   row-gap: 5px;
   column-gap: 5px;
   padding: 5px;
+  /* z-index: -1; */
 }
 
 .game-board>div {
   height: 40px;
   width: 40px;
-  border: solid lightgray thin;
+  border: solid red thin;
 }
 
 .game-board>div>div {
@@ -121,10 +202,18 @@ main {}
   background-color: pink;
 }
 
+.display {
+  grid-column: 1/ 4;
+  background-color: var(--yellow);
+}
+
+/*
+ * Footer
+ */
 footer .ga-link-text:hover {
-  text-shadow: 0 0 2px #c7e451;
+  text-shadow: 0 0 2px var(--yellow);
 }
 
 footer .ga-link-icon {
-  text-shadow: 0 0 2px #c7e451;
+  text-shadow: 0 0 2px var(--yellow);
 }
