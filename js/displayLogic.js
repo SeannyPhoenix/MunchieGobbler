@@ -133,10 +133,9 @@ function showBoard(board) {
     square.id = `sq${i}`;
     item = board.getItem1D(i);
     if (item) {
-      if (item.getType() === 'munchie') {
-        munchieCount++;
-      }
-      square.classList.add(item.getType());
+      let itemDiv = document.createElement('div');
+      itemDiv.classList.add(item.getType());
+      square.appendChild(itemDiv);
     }
     row.push(square);
     gameBoard.appendChild(square);

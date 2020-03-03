@@ -48,15 +48,49 @@ main {}
   padding: 5px;
 }
 
-.game-board div {
+.game-board>div {
   height: 40px;
   width: 40px;
   border: solid lightgray thin;
 }
 
+.game-board>div>div {
+  height: 38px;
+  width: 38px;
+}
+
 .blob {
   border-radius: 50%;
   background-color: red;
+  animation: grow 1s 1, pulse 1s 1s infinite;
+}
+
+@keyframes grow {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(.8);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(.8);
+  }
+
+  50% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(.8);
+  }
 }
 
 .munchie {

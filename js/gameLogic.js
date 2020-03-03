@@ -143,9 +143,11 @@ class MunchieGobblerGame {
 
     this.gameBoard = new GameBoard(this.options.boardX, this.options.boardY);
 
+    let blobCoods = randomizeCoordinates(this.gameBoard.getDimensions());
+
     this.blob = {
-      blobX: 2,
-      blobY: 4,
+      blobX: blobCoods.x,
+      blobY: blobCoods.y,
       blob: new Blob(),
     }
 
