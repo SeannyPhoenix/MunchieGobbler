@@ -35,12 +35,6 @@ const menu = [{
       },
     ],
   },
-  {
-    title: 'Options',
-    type: 'dialog',
-    icon: 'fa-cog',
-    action: null,
-  }
 ];
 
 
@@ -51,7 +45,6 @@ class Menu {
   }
 
   addItem(item) {
-    console.log(Object.keys(item));
     menu.push(item);
   }
 

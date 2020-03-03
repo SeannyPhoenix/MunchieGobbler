@@ -39,6 +39,21 @@ nav .menu-level-1:hover {
 
 main {}
 
+.game-board {
+  width: 0;
+  display: grid;
+  grid-auto-flow: row;
+  row-gap: 5px;
+  column-gap: 5px;
+  padding: 5px;
+}
+
+.game-board div {
+  height: 40px;
+  width: 40px;
+  border: solid lightgray thin;
+}
+
 footer .ga-link-text:hover {
   text-shadow: 0 0 2px #c7e451;
 }

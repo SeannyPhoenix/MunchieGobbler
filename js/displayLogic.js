@@ -1,15 +1,25 @@
+const elems = {
+  title: document.querySelector('title'),
+  header: document.querySelector('header'),
+  menu: document.querySelector('nav'),
+  main: document.querySelector('main'),
+  leftBar: null,
+  playingField: null,
+  rightBar: null,
+  footer: document.querySelector('footer'),
+}
+
 /*
  * Sets the title and header content
  */
 function setTitle(gameTitle) {
-  document.querySelector('title').innerText = gameTitle;
-  let header = document.querySelector('header');
+  elems.title.innerText = gameTitle;
   let title = document.createElement('h1');
   title.innerText = gameTitle;
-  header.appendChild(title);
+  elems.header.appendChild(title);
   let sub = document.createElement('h4');
   sub.innerText = 'a game by Seanny Drakon Phoenix';
-  header.appendChild(sub);
+  elems.header.appendChild(sub);
 }
 
 function setMenu(menu) {
@@ -21,33 +31,54 @@ function setMenu(menu) {
     action: null,
   });
 
-  console.log(menu);
-
-  let menuNav = document.querySelector('nav');
   menu.getAllItems().forEach((menuItem, i) => {
+    let header, icon, text;
     switch (menuItem.type) {
       case 'heading':
-        let header = document.createElement('div');
+        header = document.createElement('div');
         header.className = 'menu-level-1';
-        let icon = document.createElement('i');
+        icon = document.createElement('i');
         icon.classList.add('fas', menuItem.icon);
-        let text = document.createElement('p');
+        text = document.createElement('p');
         text.innerText = menuItem.title;
         header.appendChild(icon);
         header.appendChild(text);
-        menuNav.appendChild(header);
+        elems.menu.appendChild(header);
+        break;
+      case 'click':
+        header = document.createElement('div');
+        header.className = 'menu-level-1';
+        icon = document.createElement('i');
+        icon.classList.add('fas', menuItem.icon);
+        text = document.createElement('p');
+        text.innerText = menuItem.title;
+        header.appendChild(icon);
+        header.appendChild(text);
+        elems.menu.appendChild(header);
+        break;
+      default:
+        break;
     }
   });
 }
 
+function initializePlayingField() {
+  elems.leftBar = document.createElement('aside');
+  elems.playingField = document.createElement('div');
+  elems.playingField.classList.add('playing-field');
+  elems.rightBar = document.createElement('aside');
+  elems.main.appendChild(elems.leftBar);
+  elems.main.appendChild(elems.playingField);
+  elems.main.appendChild(elems.rightBar);
+}
+
 function setFooter() {
-  let footer = document.querySelector('footer');
 
   //Copyright Info
   let copyright = document.createElement('p');
   copyright.className = 'copyright';
   copyright.innerHTML = '&#169;	2020 Seanny Drakon Phoenix';
-  footer.appendChild(copyright);
+  elems.footer.appendChild(copyright);
 
   //GA Link
   let gaLink = document.createElement('a');
@@ -70,7 +101,7 @@ function setFooter() {
   gaLinkIcon.classList.add('fas', 'fa-external-link-alt', 'ga-link-icon');
   gaLink.appendChild(gaLinkIcon);
 
-  footer.appendChild(gaLink);
+  elems.footer.appendChild(gaLink);
 }
 
 function activateIcon(icon) {
@@ -79,4 +110,29 @@ function activateIcon(icon) {
 
 function deactivateIcon(icon) {
   icon.classList.remove('show');
+}
+
+function showBoard(board) {
+  let gameBoard = document.createElement('div');
+  gameBoard.classList = 'game-board';
+
+  // Set up the number of columns
+  let gridColumns = '';
+  for (let i = 0; i < board.dimX; i++) {
+    gridColumns += '1fr ';
+  }
+  gameBoard.setAttribute('style', `grid-template-columns: ${gridColumns};`);
+
+  // Create and add squares
+  let row = [];
+
+  for (let i = 0; i < board.dimX * board.dimY; i++) {
+    let square = document.createElement('div');
+    square.classList.add('square');
+    square.id = `sq${i}`;
+    square.innerText = i;
+    row.push(square);
+    gameBoard.appendChild(square);
+  }
+  elems.playingField.append(gameBoard);
 }
