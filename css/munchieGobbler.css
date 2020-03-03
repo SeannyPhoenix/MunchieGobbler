@@ -54,6 +54,15 @@ main {}
   border: solid lightgray thin;
 }
 
+.blob {
+  border-radius: 50%;
+  background-color: red;
+}
+
+.munchie {
+  background-color: blue;
+}
+
 footer .ga-link-text:hover {
   text-shadow: 0 0 2px #c7e451;
 }

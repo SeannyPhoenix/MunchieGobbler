@@ -19,18 +19,20 @@ class GameBoard {
   constructor(x, y) {
     this.dimX = x;
     this.dimY = y;
+    this.size = x * y;
 
     this.board = [];
 
     for (let i = 0; i < this.dimX * this.dimY; i++) {
       this.board.push(null);
     }
+
   }
 
   setItem(x, y, item) {
     if (x <= this.dimX && y <= this.dimY) {
-      let position = (this.dimX * x) + y;
-      if (this.board.position) {
+      let position = twoDimToOneDim(x, y, this.dimX);
+      if (this.board[position]) {
         return false;
       } else {
         this.board[position] = item;
@@ -41,12 +43,31 @@ class GameBoard {
     }
   }
 
+  getItem1D(index) {
+    if (index < this.size) {
+      return this.board[index];
+    } else {
+      return null;
+    }
+  }
+
   getItem(x, y) {
     if (x <= this.dimX && y <= this.dimY) {
-      let position = (this.dimX * x) + y;
+      let position = twoDimToOneDim(x, y, this.dimX);
       return this.board[position];
     } else {
       return null;
+    }
+  }
+
+  getSize() {
+    return this.size;
+  }
+
+  getDimensions() {
+    return {
+      x: this.dimX,
+      y: this.dimY,
     }
   }
 
@@ -59,30 +80,38 @@ class GameBoard {
   }
 }
 
-class Munchie {
-  constructor(name, points) {
-    super.constructor();
+class Item {
+  constructor(name, points = 0, type) {
     this.name = name;
-    this.points = points;
+    this.type = type;
+    this.points = 0;
 
-    let munchie = document.createElement('div');
-    munchie.classList.add('munchie');
-    this.element = munchie;
+    this.element = document.createElement('div');
+    this.element.classList.add(this.type);
   }
 
   getElement() {
     return this.element;
   }
 
+  getType() {
+    return this.type;
+  }
+
   getScore() {
     return this.points;
   }
-
 }
 
-class Blog {
+class Munchie extends Item {
+  constructor(name, points) {
+    super(name, points, 'munchie');
+  }
+}
+
+class Blob extends Item {
   constructor() {
-    super.constructor();
+    super('blob', 0, 'blob');
   }
 }
 
@@ -93,8 +122,6 @@ class MunchieGobblerGame {
    * Attach event handlers
    */
   constructor() {
-    super.constructor();
-
     this.menu = new Menu();
     setTitle(gameName);
     setMenu(this.menu);
@@ -116,7 +143,16 @@ class MunchieGobblerGame {
 
     this.gameBoard = new GameBoard(this.options.boardX, this.options.boardY);
 
-    showBoard(this.gameBoard);
+    this.blob = {
+      blobX: 2,
+      blobY: 4,
+      blob: new Blob(),
+    }
+
+    this.gameBoard.setItem(
+      this.blob.blobX,
+      this.blob.blobY,
+      this.blob.blob);
 
     switch (this.options.obstacles) {
       case 'none':
@@ -133,7 +169,9 @@ class MunchieGobblerGame {
         break;
     }
 
-    console.log(`Munchies: ${this.options.munchies}`);
+
+    // Generate Munchies
+
     switch (this.options.munchies) {
       case 'average':
         break;
@@ -146,7 +184,28 @@ class MunchieGobblerGame {
       default:
         break;
     }
+
+    let range = {
+      upper: this.gameBoard.getSize() * .15,
+      lower: this.gameBoard.getSize() * .05,
+    }
+    let munchieCount = randomizeInt(range);
+
+    let upperLimit = munchieCount + (munchieCount / 2);
+    for (let i = 0; i < munchieCount && i < upperLimit; i++) {
+      let coord = randomizeCoordinates(this.gameBoard.getDimensions());
+      if (!this.gameBoard.getItem(coord.x, coord.y)) {
+        this.gameBoard.setItem(coord.x, coord.y, new Munchie('candy', 1));
+      } else {
+        munchieCount++;
+      }
+    }
+
+    showBoard(this.gameBoard);
+
   }
+
+
 
   /*
    *

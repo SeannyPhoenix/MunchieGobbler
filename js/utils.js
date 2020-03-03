@@ -161,5 +161,29 @@ class Typewriter {
       oldText.slice(info.index + 1)
     );
   }
+}
 
+function randomizeInt(range) {
+  let base = range.upper - range.lower + 1;
+  let rand = Math.floor((Math.random() * base) + range.lower);
+  return rand;
+}
+
+function randomizeCoordinates(dimensions) {
+  let x = randomizeInt({
+    lower: 0,
+    upper: dimensions.x - 1,
+  });
+  let y = randomizeInt({
+    lower: 0,
+    upper: dimensions.y - 1,
+  });
+  return ({
+    x: x,
+    y: y,
+  })
+}
+
+function twoDimToOneDim(x, y, width) {
+  return x + (y * width);
 }

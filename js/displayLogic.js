@@ -125,12 +125,19 @@ function showBoard(board) {
 
   // Create and add squares
   let row = [];
+  let munchieCount = 0;
 
   for (let i = 0; i < board.dimX * board.dimY; i++) {
     let square = document.createElement('div');
     square.classList.add('square');
     square.id = `sq${i}`;
-    square.innerText = i;
+    item = board.getItem1D(i);
+    if (item) {
+      if (item.getType() === 'munchie') {
+        munchieCount++;
+      }
+      square.classList.add(item.getType());
+    }
     row.push(square);
     gameBoard.appendChild(square);
   }
