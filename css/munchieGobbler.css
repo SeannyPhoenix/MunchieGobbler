@@ -2,9 +2,9 @@
  * CSS specific for Munchie Gobbler
  */
 * {
-  --yellow: #c7e451;
-  --blue: #3d10d2;
-  --options-fly-timeout: .75s;
+  --blue: #7ebfe9;
+  --green: #0d5d39;
+  --options-fly-timeout: .2s;
 }
 
 body {
@@ -16,12 +16,12 @@ body {
  * Header
  */
 header *, footer * {
-  color: var(--blue);
+  color: var(--green);
 }
 
 header h1 {
   font-size: 4em;
-  text-shadow: 0 0 10px var(--yellow);
+  text-shadow: 0 0 10px var(--blue);
   padding-top: 10px;
   margin: auto;
 }
@@ -30,14 +30,14 @@ header h1 {
  * Navigation Bar
  */
 nav {
-  background-color: var(--blue);
+  background-color: var(--green);
 }
 
 nav .menu-level-1 {
-  background-color: var(--blue);
-  color: var(--yellow);
+  background-color: var(--green);
+  color: var(--blue);
   transition: color .5s, background-color .5s;
-  border-left: solid var(--yellow) thin;
+  border-left: solid var(--blue) thin;
 }
 
 nav .menu-level-1:first-of-type {
@@ -45,8 +45,8 @@ nav .menu-level-1:first-of-type {
 }
 
 nav .menu-level-1:hover {
-  background-color: var(--yellow);
-  color: var(--blue);
+  background-color: var(--blue);
+  color: var(--green);
 }
 
 /*
@@ -63,7 +63,7 @@ main {
 aside {
   opacity: 1;
   transition: opacity var(--options-fly-timeout);
-  border: solid var(--yellow) thin;
+  border: solid var(--blue) thin;
 }
 
 .fade {
@@ -71,11 +71,11 @@ aside {
 }
 
 .left-bar {
-  background-color: var(--blue);
+  background-color: var(--green);
 }
 
 .right-bar {
-  background-color: var(--blue);
+  background-color: var(--green);
 }
 
 .playingField {
@@ -88,23 +88,41 @@ aside {
   height: 0px;
   width: 500px;
   position: absolute;
-  background-color: lightgray;
+  background-color: var(--blue);
   transition: height var(--options-fly-timeout);
   box-shadow: 0 0 20px black;
   z-index: 1;
   overflow: hidden;
 }
 
+.show {
+  height: 500px;
+}
+
 .options {}
 
 .instructions {}
+
+h2 {
+  font-size: 1.5em;
+  padding: 10px 0 0 10px;
+}
+
+h3 {
+  font-size: 1.25em;
+  padding: 5px 10px 0 10px;
+}
+
+.instructions>p {
+  padding: 5px 10px 15px 20px;
+}
 
 button {
   height: 35px;
   width: 75px;
   position: absolute;
-  background-color: var(--blue);
-  color: var(--yellow);
+  background-color: var(--green);
+  color: var(--blue);
   font-family: 'Architects Daughter', Ariel, sans-serif;
   font-size: 1em;
 }
@@ -119,10 +137,6 @@ button {
   right: 125px;
 }
 
-.show {
-  height: 500px;
-}
-
 .game-board {
   width: 0;
   display: grid;
@@ -130,7 +144,6 @@ button {
   row-gap: 5px;
   column-gap: 5px;
   padding: 5px;
-  /* z-index: -1; */
 }
 
 .game-board>div {
@@ -206,18 +219,74 @@ button {
   background-color: pink;
 }
 
-.display {
+.prompt-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   grid-column: 1/ 4;
-  background-color: var(--yellow);
+  background-color: var(--blue);
+}
+
+.prompt {
+  display: block;
+  color: var(--green);
+  text-shadow: 0 0 5px var(--green);
+  animation: wooshIn 2s 1, nudge 10s 2s infinite;
+}
+
+.prompt-list h1 {
+  font-size: 2em;
+}
+
+h2 .prompt {
+  font-size: 1.4em;
+}
+
+.leave {
+  transform: scale(0);
+  transition: transform .5s;
+}
+
+@keyframes wooshIn {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes nudge {
+  0% {
+    transform: scale(1);
+  }
+
+  10% {
+    transform: scale(1.03);
+  }
+
+  20% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 /*
  * Footer
  */
 footer .ga-link-text:hover {
-  text-shadow: 0 0 2px var(--yellow);
+  text-shadow: 0 0 2px var(--blue);
 }
 
 footer .ga-link-icon {
-  text-shadow: 0 0 2px var(--yellow);
+  text-shadow: 0 0 2px var(--blue);
 }

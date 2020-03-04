@@ -1,15 +1,14 @@
 const elems = {
+  doc: document,
   title: document.querySelector('title'),
   header: document.querySelector('header'),
   menu: document.querySelector('nav'),
   main: document.querySelector('main'),
-  leftBar: null,
-  playingField: null,
-  options: null,
-  instructions: null,
-  rightBar: null,
-  display: null,
   footer: document.querySelector('footer'),
+}
+
+const eventHandlers = {
+
 }
 
 /*
@@ -63,13 +62,13 @@ function buildPlayingField() {
   elems.playingField.classList.add('playing-field');
   elems.rightBar = document.createElement('aside');
   elems.rightBar.className = 'right-bar';
-  elems.display = document.createElement('aside');
-  elems.display.className = 'display';
+  elems.promptList = document.createElement('aside');
+  elems.promptList.className = 'prompt-list';
 
   elems.main.appendChild(elems.leftBar);
   elems.main.appendChild(elems.playingField);
   elems.main.appendChild(elems.rightBar);
-  elems.main.appendChild(elems.display);
+  elems.main.appendChild(elems.promptList);
 }
 
 /*
@@ -121,10 +120,16 @@ function buildInstructions(instructions) {
 }
 
 /*
+ * Build Prompt
+ */
+function buildPromptList(prompt) {
+
+}
+
+/*
  * Build Footer
  */
 function buildFooter() {
-
   //Copyright Info
   let copyright = document.createElement('p');
   copyright.className = 'copyright';
@@ -155,6 +160,20 @@ function buildFooter() {
   elems.footer.appendChild(gaLink);
 }
 
+/*
+ * Build Event Handlers
+ */
+function buildEventHandlers(events) {
+  Object.keys(events).forEach(eventType => {
+    eventHandlers[eventType] = (event) => {
+      try {
+        events[eventType][event.code]();
+      } catch {}
+    };
+    document.addEventListener(eventType, eventHandlers[eventType]);
+  });
+}
+
 function activateIcon(icon) {
   icon.classList.add('show');
 }
@@ -174,10 +193,9 @@ function showBoard(board) {
   }
   gameBoard.setAttribute('style', `grid-template-columns: ${gridColumns};`);
 
-  // Create and add squares
-  let row = [];
-  let munchieCount = 0;
 
+  // Create and add squares
+  let queue = new DoQueue(10, 20);
   for (let i = 0; i < board.dimX * board.dimY; i++) {
     let square = document.createElement('div');
     square.classList.add('square');
@@ -188,12 +206,12 @@ function showBoard(board) {
       itemDiv.classList.add(item.getType());
       square.appendChild(itemDiv);
     }
-    row.push(square);
-    gameBoard.appendChild(square);
+    queue.addToQueue(() => {
+      gameBoard.appendChild(square);
+    });
   }
   elems.playingField.append(gameBoard);
 }
-
 
 function showPage(options, instructions) {
   let mainElements = document.querySelectorAll('aside');
@@ -214,4 +232,60 @@ function showPage(options, instructions) {
     elems.options.classList.remove('show');
     elems.instructions.classList.remove('show');
   }
+}
+
+function updatePromptStart(prompt) {
+  let lines = elems.promptList.children;
+  for (let i = 0; i < lines.length; i++) {
+    lines[i].classList.add('leave');
+  }
+  let welcome = document.createElement('h1');
+  welcome.innerText = prompt.welcome;
+  welcome.classList.add('prompt');
+  setTimeout(() => {
+    for (let i = 0; i < lines.length; i++) {
+      lines[i].remove();
+    }
+    elems.promptList.appendChild(welcome);
+  }, 700);
+}
+
+function updatePromptPlayer(prompt, player) {
+  let lines = elems.promptList.children;
+  for (let i = 0; i < lines.length; i++) {
+    lines[i].classList.add('leave');
+  }
+  let line1 = document.createElement('h3');
+  line1.innerText = player;
+  line1.classList.add('prompt');
+  let line2 = document.createElement('h3');
+  line2.innerText = prompt.playerLine2;
+  line2.classList.add('prompt');
+  let line3 = document.createElement('h3');
+  line3.innerText = prompt.playerLine3;
+  line3.classList.add('prompt');
+  setTimeout(() => {
+    for (let i = 0; i < lines.length; i++) {
+      lines[i].remove();
+    }
+    elems.promptList.appendChild(line1);
+    elems.promptList.appendChild(line2);
+    elems.promptList.appendChild(line3);
+  }, 700);
+}
+
+function updatePromptPause(prompt) {
+  let lines = elems.promptList.children;
+  for (let i = 0; i < lines.length; i++) {
+    lines[i].classList.add('leave');
+  }
+  let pause = document.createElement('h2');
+  pause.innerText = prompt.pause;
+  pause.classList.add('prompt');
+  setTimeout(() => {
+    for (let i = 0; i < lines.length; i++) {
+      lines[i].remove();
+    }
+    elems.promptList.appendChild(pause);
+  }, 700);
 }

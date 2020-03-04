@@ -135,7 +135,16 @@ class MunchieGobblerGame {
     this.setInstructions();
     buildInstructions(this.instructions);
 
+    this.setPrompt();
+    buildPromptList(this.prompt);
+    updatePromptStart(this.prompt);
+
     buildFooter();
+
+    this.setEvents();
+    buildEventHandlers(this.events);
+
+    this.currentGame = false;
   }
 
   /*
@@ -147,6 +156,12 @@ class MunchieGobblerGame {
     this.gameBoard = new GameBoard(this.options.boardX, this.options.boardY);
 
     this.player = 'Player 1';
+    this.currentMove = {
+      direction: null,
+      spaces: [],
+    };
+    this.pause = false;
+
 
     let blobCoods = randomizeCoordinates(this.gameBoard.getDimensions());
 
@@ -225,7 +240,15 @@ class MunchieGobblerGame {
     }
   }
 
-  takeTurn() {}
+  finalizeTurn() {
+    if (!this.currentGame && !this.pause) {
+      this.currentGame = true;
+      this.startGame();
+      updatePromptPlayer(this.prompt, this.player);
+    } else if (!this.pause) {
+
+    }
+  }
 
   setMenu() {
     this.menu = new Menu();
@@ -269,6 +292,7 @@ class MunchieGobblerGame {
   displayOptions() {
     this.options.show = !this.options.show;
     this.instructions.show = false;
+    this.pause = this.options.show;
     showPage(this.options.show, this.instructions.show);
   }
 
@@ -277,11 +301,15 @@ class MunchieGobblerGame {
       title: 'Munchie Gobbler: Instructions',
       paragraphs: [{
           heading: 'Game Board',
-          text: '',
+          text: 'The Map is laid out in a grid of squares. Each square can contain one of the following: the Blob, a Munchie, or a Blocker.',
         },
         {
           heading: 'Gameplay',
-          text: '',
+          text: 'Each player takes turns choosing a move for the Blob. You may move one direction as many spaces as you want. You must move at least one space. You cannot move through Blockers or off the Map!',
+        },
+        {
+          heading: 'Keys',
+          text: 'Space/Enter: Begin game or finalize turn.'
         }
       ],
       buttons: [{
@@ -294,10 +322,94 @@ class MunchieGobblerGame {
   }
 
   displayInstructions() {
-    this.instructions.show = !this.instructions.show;
-    this.options.show = false;
+    if (this.instructions.show) {
+      this.closePage();
+    } else {
+      this.instructions.show = true;
+      this.options.show = false;
+      this.pause = true;
+      updatePromptPause(this.prompt);
+    }
     showPage(this.options.show, this.instructions.show);
   }
+
+  closePage() {
+    if (this.pause) {
+      this.options.show = false;
+      this.instructions.show = false;
+      this.pause = false;
+      if (this.currentGame) {
+        updatePromptPlayer(this.prompt, this.player);
+      } else {
+        updatePromptStart(this.prompt);
+      }
+      showPage(this.options.show, this.instructions.show);
+    }
+  }
+
+  setPrompt() {
+    this.prompt = {
+      welcome: 'Press Space or Enter to start Game!',
+      pause: 'Press Esc to return to Game...',
+      playerLine2: 'Use the arrow keys to select where to move the Blob.',
+      playerLine3: 'Press Space or Enter to finalize.',
+      winner: '$Player has won the game! They ate Munchies to earn $Points points!',
+    };
+  }
+
+  setEvents() {
+    this.events = {
+      keydown: {
+        Space: this.finalizeTurn.bind(this),
+        Enter: this.finalizeTurn.bind(this),
+        ArrowUp: this.goUp.bind(this),
+        ArrowRight: this.goRight.bind(this),
+        ArrowDown: this.goDown.bind(this),
+        ArrowLeft: this.goLeft.bind(this),
+        KeyO: this.displayOptions.bind(this),
+        KeyI: this.displayInstructions.bind(this),
+        Escape: this.closePage.bind(this),
+      },
+      click: {
+
+      },
+    };
+  }
+
+  goUp() {
+    let move = this.currentMove;
+    if (!this.pause && this.currentGame) {
+      if (move.direction !== 'up') {
+        move.direction = 'up';
+        move.spaces = [];
+      }
+      lastMove = move.spaces[move.spaces.length - 1];
+      if (lastMove >= 0) {
+        move.spaces.push(lastMove - this.boardX);
+      } else {
+        console.log('Cannot leave map!');
+      }
+    }
+  }
+
+  goRight() {
+    if (!this.pause && this.currentGame) {
+      console.log('Go Right');
+    }
+  }
+
+  goDown() {
+    if (!this.pause && this.currentGame) {
+      console.log('Go Down');
+    }
+  }
+
+  goLeft() {
+    if (!this.pause && this.currentGame) {
+      console.log('Go Left');
+    }
+  }
+
 
 }
 

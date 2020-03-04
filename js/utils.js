@@ -1,9 +1,10 @@
 class DoQueue {
-  constructor(interval = 100) {
+  constructor(interval = 100, defaultDelay = 10) {
     this.busy = false;
     this.queue = [];
     this.timer = null;
     this.inerval = interval;
+    this.delay = defaultDelay;
     this.actionCount = 0;
   }
 
