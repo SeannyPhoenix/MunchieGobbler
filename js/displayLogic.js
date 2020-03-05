@@ -399,7 +399,7 @@ function showPage(page) {
   }
 }
 
-function activePlayer(player) {
+function activatePayer(player) {
   switch (player) {
     case 'Player 1':
       elems.player1Score.classList.add('active');
@@ -412,9 +412,9 @@ function activePlayer(player) {
   }
 }
 
-function updateScores(score1, score2) {
-  elems.player1Score.querySelector('.score').innerText = `Score: ${score1}`;
-  elems.player2Score.querySelector('.score').innerText = `Score: ${score2}`;
+function updateScores(scores) {
+  elems.player1Score.querySelector('.score').innerText = `Score: ${scores.player1}`;
+  elems.player2Score.querySelector('.score').innerText = `Score: ${scores.player2}`;
 }
 
 function addMunchie(munchie, player) {

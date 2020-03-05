@@ -362,8 +362,12 @@ button {
   font-size: 2em;
 }
 
-h2 .prompt {
+.prompt-list h2 {
   font-size: 1.6em;
+}
+
+.prompt-list h3 {
+  font-size: 1.3em;
 }
 
 .leave {

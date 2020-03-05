@@ -106,10 +106,55 @@ class Munchie extends Item {
 }
 
 class Blob extends Item {
-
-
   constructor() {
     super('blob', 0, 'blob');
+  }
+}
+
+class Players {
+  constructor() {
+    this.player1 = {
+      name: 'Player 1',
+      munchies: [],
+      score: 0,
+    };
+    this.player2 = {
+      name: 'Player 2',
+      munchies: [],
+      score: 0,
+    };
+    this.current = null;
+  }
+
+  name() {
+    return this.current.name;
+  }
+
+  switch () {
+    if (!this.current || this.current === this.player2) {
+      // Player 1 if there is no player or if Player 2 just went
+      this.current = this.player1;
+    } else {
+      // Otherwise, it's clearly Player 2
+      this.current = this.player2;
+    }
+  }
+
+  gobble(munchie) {
+    this.current.munchies.push(munchie);
+    this.current.score += munchie.getScore();
+    //this.current.score = this.current.munchies.map(munchie => munchie.getScore()).reduce((a, b) => a + b, 0);
+  }
+
+  score() {
+    return this.current.score;
+  }
+
+  scores() {
+    return {
+      player1: this.player1.score,
+      player2: this.player2.score,
+    }
   }
 }
 
@@ -166,12 +211,10 @@ class MunchieGobblerGame {
     this.currentGame = true;
     this.gameBoard = new GameBoard(this.options.dimX, this.options.dimY);
 
-    this.switchPlayer('Player 1');
+    this.players = new Players();
+    this.switchPlayer();
+
     this.munchiesPlaced = {};
-    this.munchiesGobbled = {
-      'Player 1': [],
-      'Player 2': [],
-    };
 
     this.currentMove = {
       direction: null,
@@ -226,8 +269,6 @@ class MunchieGobblerGame {
     // Generate Munchies
 
     switch (this.options.munchies) {
-      case 'average':
-        break;
       case 'sweets':
         break;
       case 'sweet and sour':
@@ -258,7 +299,7 @@ class MunchieGobblerGame {
     }
     if (this.resetDialog.reset) {
       this.resetDialog.reset = false;
-    } else {}
+    }
     this.actionQueue.addToQueue(function() {
       showBoard(this.gameBoard);
     }.bind(this));
@@ -279,19 +320,9 @@ class MunchieGobblerGame {
    *
    */
   switchPlayer(player) {
-    if (player) {
-      this.player = player;
-    } else {
-      switch (this.player) {
-        case 'Player 1':
-          this.player = 'Player 2';
-          break;
-        default:
-          this.player = 'Player 1';
-      }
-    }
-    activePlayer(this.player);
-    updatePromptPlayer(this.prompt, this.player);
+    this.players.switch();
+    activatePayer(this.players.name());
+    updatePromptPlayer(this.prompt, this.players.name());
   }
 
   /*
@@ -303,22 +334,23 @@ class MunchieGobblerGame {
       this.startGame();
     } else if (!this.pause && this.currentMove.hasMoves()) {
       // Move the Blob and Gobble Munchies!
+      // TODO: animate the Blob
       this.currentMove.spaces.forEach(index => {
         let munchie = this.gameBoard.removeItem(index);
         if (munchie) {
           delete this.munchiesPlaced[index];
-          this.munchiesGobbled[this.player].push(munchie);
-          addMunchie(munchie, this.player);
-          let player1Score = this.munchiesGobbled['Player 1'].map(munchie => munchie.getScore()).reduce((a, b) => a + b, 0);
-          let player2Score = this.munchiesGobbled['Player 2'].map(munchie => munchie.getScore()).reduce((a, b) => a + b, 0);
-          updateScores(player1Score, player2Score);
+          this.players.gobble(munchie);
+          addMunchie(munchie, this.players.name());
+          updateScores(this.players.scores());
         }
       });
+      this.currentMove.reset();
+      clearMoves();
+
       //Check if we have any more munchies left!
       if (this.munchiesLeft() === 0) {
         this.pause = true;
         this.currentGame = false;
-        clearMoves();
         removeBoard();
       } else {
         this.switchPlayer();
@@ -327,8 +359,6 @@ class MunchieGobblerGame {
         this.gameBoard.setItem(
           this.blob.index,
           this.blob.blob);
-        this.currentMove.reset();
-        clearMoves();
         updateBoard(this.gameBoard);
       }
     }
@@ -564,7 +594,7 @@ class MunchieGobblerGame {
       this.resetDialog.show = false;
       this.pause = false;
       if (this.currentGame) {
-        updatePromptPlayer(this.prompt, this.player);
+        updatePromptPlayer(this.prompt, this.players);
       } else {
         updatePromptStart(this.prompt);
       }
