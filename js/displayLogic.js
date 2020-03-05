@@ -76,18 +76,18 @@ function buildMenu(menu) {
  * Build Playing Field
  */
 function buildPlayingField() {
-  elems.leftBar = document.createElement('aside');
-  elems.leftBar.className = 'left-bar';
+  elems.player1Score = document.createElement('aside');
+  elems.player1Score.classList.add('score-board', 'player-1');
   elems.playingField = document.createElement('div');
   elems.playingField.classList.add('playing-field');
-  elems.rightBar = document.createElement('aside');
-  elems.rightBar.className = 'right-bar';
+  elems.player2Score = document.createElement('aside');
+  elems.player2Score.classList.add('score-board', 'player-2');
   elems.promptList = document.createElement('aside');
   elems.promptList.className = 'prompt-list';
 
-  elems.main.appendChild(elems.leftBar);
+  elems.main.appendChild(elems.player1Score);
   elems.main.appendChild(elems.playingField);
-  elems.main.appendChild(elems.rightBar);
+  elems.main.appendChild(elems.player2Score);
   elems.main.appendChild(elems.promptList);
 }
 
@@ -95,7 +95,7 @@ function buildPlayingField() {
  * Build Score Boards
  */
 function buildScoreBoards() {
-  [elems.leftBar, elems.rightBar].forEach((scoreBoard, i) => {
+  [elems.player1Score, elems.player2Score].forEach((scoreBoard, i) => {
     let name = document.createElement('div');
     name.classList.add('name');
     name.innerText = `Player ${i+1}`;
@@ -146,9 +146,14 @@ function buildInstructions(instructions) {
     heading.innerText = paragraph.heading;
     elems.instructions.appendChild(heading);
 
-    let text = document.createElement('p');
-    text.innerText = paragraph.text;
-    elems.instructions.appendChild(text);
+    paragraph.text.forEach((text, i) => {
+      let line = document.createElement('p');
+      if (i > 0) {
+        line.classList.add('first-line');
+      }
+      line.innerText = text;
+      elems.instructions.appendChild(line);
+    });
   })
 
   instructions.buttons.forEach(button => {
@@ -394,6 +399,38 @@ function showPage(page) {
   }
 }
 
+function activePlayer(player) {
+  switch (player) {
+    case 'Player 1':
+      elems.player1Score.classList.add('active');
+      elems.player2Score.classList.remove('active')
+      break;
+    case 'Player 2':
+      elems.player2Score.classList.add('active');
+      elems.player1Score.classList.remove('active')
+      break;
+  }
+}
+
+function updateScores(score1, score2) {
+  elems.player1Score.querySelector('.score').innerText = `Score: ${score1}`;
+  elems.player2Score.querySelector('.score').innerText = `Score: ${score2}`;
+}
+
+function addMunchie(munchie, player) {
+  let newMunchie = document.createElement('div');
+  newMunchie.classList.add('munchie');
+  switch (player) {
+    case 'Player 1':
+      elems.player1Score.querySelector('.munchie-jar').appendChild(newMunchie);
+      break;
+    case 'Player 2':
+      elems.player2Score.querySelector('.munchie-jar').appendChild(newMunchie);
+      break;
+  }
+  newMunchie.classList.add('pop-in');
+}
+
 function updatePromptStart(prompt) {
   let lines = elems.promptList.children;
   for (let i = 0; i < lines.length; i++) {
@@ -424,14 +461,14 @@ function updatePromptPlayer(prompt, player) {
   let line3 = document.createElement('h3');
   line3.innerText = prompt.playerLine3;
   line3.classList.add('prompt');
-  setTimeout(() => {
-    for (let i = 0; i < lines.length; i++) {
-      lines[i].remove();
-    }
+  setTimeout(function() {
+    Object.values(lines).forEach(line => {
+      line.remove();
+    });
     elems.promptList.appendChild(line1);
     elems.promptList.appendChild(line2);
     elems.promptList.appendChild(line3);
-  }, 700);
+  }.bind(lines), 700);
 }
 
 function updatePromptPause(prompt) {
@@ -444,7 +481,7 @@ function updatePromptPause(prompt) {
   pause.classList.add('prompt');
   setTimeout(() => {
     for (let i = 0; i < lines.length; i++) {
-      lines[i].remove();
+      lines[0].remove();
     }
     elems.promptList.appendChild(pause);
   }, 700);

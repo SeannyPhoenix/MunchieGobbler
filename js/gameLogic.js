@@ -103,17 +103,14 @@ class Munchie extends Item {
   constructor(name, points) {
     super(name, points, 'munchie');
   }
-
-  gobble(player) {
-    console.log(`${player} gobbled the ${this.name} for ${this.getScore()} points!`);
-  }
 }
 
 class Blob extends Item {
+
+
   constructor() {
     super('blob', 0, 'blob');
   }
-
 }
 
 class MunchieGobblerGame {
@@ -139,7 +136,7 @@ class MunchieGobblerGame {
     buildInstructions(this.instructions);
 
     this.setResetDialog();
-    buildResetDiaolg(this.resetDialog);
+    //buildResetDiaolg(this.resetDialog);
 
     this.setPrompt();
     updatePromptStart(this.prompt);
@@ -153,16 +150,23 @@ class MunchieGobblerGame {
 
     this.currentGame = false;
     this.pause = false;
+
+    this.actionQueue = new DoQueue(200, 0);
   }
 
   /*
    * Generate a new board
    */
   startGame() {
+    if (this.currentGame && this.resetDialog.reset) {
+      this.actionQueue.addToQueue(function() {
+        removeBoard();
+      }.bind(this));
+    }
     this.currentGame = true;
     this.gameBoard = new GameBoard(this.options.dimX, this.options.dimY);
 
-    this.player = 'Player 1';
+    this.switchPlayer('Player 1');
     this.munchiesPlaced = {};
     this.munchiesGobbled = {
       'Player 1': [],
@@ -246,25 +250,22 @@ class MunchieGobblerGame {
         upper: this.options.size(),
       });
       if (this.spaceCheck(index)) {
-        this.munchiesPlaced[index] = new Munchie('candy', 1);
+        this.munchiesPlaced[index] = new Munchie('candy', 3);
         this.gameBoard.setItem(index, this.munchiesPlaced[index]);
-        console.log(this.munchiesLeft());
       } else {
         munchieCount++;
       }
     }
     if (this.resetDialog.reset) {
-      console.log('Reset');
-      updateBoard(this.gameBoard);
       this.resetDialog.reset = false;
-    } else {
+    } else {}
+    this.actionQueue.addToQueue(function() {
       showBoard(this.gameBoard);
-    }
+    }.bind(this));
   }
 
   spaceCheck(index) {
     if (this.gameBoard.getItem(index)) {
-      console.log('Squash!');
       return false;
     }
     return true;
@@ -277,14 +278,19 @@ class MunchieGobblerGame {
   /*
    *
    */
-  switchPlayer() {
-    switch (this.player) {
-      case 'Player 1':
-        this.player = 'Player 2';
-        break;
-      default:
-        this.player = 'Player 1';
+  switchPlayer(player) {
+    if (player) {
+      this.player = player;
+    } else {
+      switch (this.player) {
+        case 'Player 1':
+          this.player = 'Player 2';
+          break;
+        default:
+          this.player = 'Player 1';
+      }
     }
+    activePlayer(this.player);
     updatePromptPlayer(this.prompt, this.player);
   }
 
@@ -294,39 +300,27 @@ class MunchieGobblerGame {
   finalizeTurn() {
     if (!this.currentGame && !this.pause) {
       // No current game
-      console.log('New Game');
       this.startGame();
-      updatePromptPlayer(this.prompt, this.player);
     } else if (!this.pause && this.currentMove.hasMoves()) {
       // Move the Blob and Gobble Munchies!
-      console.log('Gobble Gobble!');
       this.currentMove.spaces.forEach(index => {
         let munchie = this.gameBoard.removeItem(index);
         if (munchie) {
           delete this.munchiesPlaced[index];
           this.munchiesGobbled[this.player].push(munchie);
-          console.log(munchie.getScore());
+          addMunchie(munchie, this.player);
+          let player1Score = this.munchiesGobbled['Player 1'].map(munchie => munchie.getScore()).reduce((a, b) => a + b, 0);
+          let player2Score = this.munchiesGobbled['Player 2'].map(munchie => munchie.getScore()).reduce((a, b) => a + b, 0);
+          updateScores(player1Score, player2Score);
         }
       });
       //Check if we have any more munchies left!
       if (this.munchiesLeft() === 0) {
-        console.log('Game Over');
         this.pause = true;
         this.currentGame = false;
         clearMoves();
         removeBoard();
-        let player1Score = 0;
-        this.munchiesGobbled['Player 1'].forEach(munchie => {
-          player1Score += munchie.getScore();
-        });
-        console.log(`Player 1 scored ${player1Score} points!`);
-        let player2Score = 0;
-        this.munchiesGobbled['Player 2'].forEach(munchie => {
-          player2Score += munchie.getScore();
-        });
-        console.log(`Player 2 scored ${player2Score} points!`);
       } else {
-        console.log('Next Turn');
         this.switchPlayer();
         this.gameBoard.removeItem(this.blob.index);
         this.blob.moveTo(index);
@@ -356,19 +350,19 @@ class MunchieGobblerGame {
       action: this.displayInstructions.bind(this),
       float: 'right',
     });
-    this.menu.addItem({
-      title: 'Reset Game',
-      type: 'click',
-      icon: 'fa-undo-alt',
-      action: this.displayResetDialog.bind(this),
-      float: 'right',
-    });
+    // this.menu.addItem({
+    //   title: 'Reset Game',
+    //   type: 'click',
+    //   icon: 'fa-undo-alt',
+    //   action: this.displayResetDialog.bind(this),
+    //   float: 'right',
+    // });
   }
 
   setOptions() {
     this.options = {
-      dimX: 6,
-      dimY: 6,
+      dimX: 11,
+      dimY: 11,
       size: function() {
         return this.dimX * this.dimY;
       },
@@ -382,7 +376,7 @@ class MunchieGobblerGame {
         {
           text: 'Save',
           style: 'button-1',
-          action: this.displayOptions.bind(this),
+          action: this.closePages.bind(this),
         },
       ],
       show: false,
@@ -394,21 +388,31 @@ class MunchieGobblerGame {
       title: 'Munchie Gobbler: Instructions',
       paragraphs: [{
           heading: 'Game Board',
-          text: 'The Map is laid out in a grid of squares. Each square can contain one of the following: the Blob, a Munchie, or a Blocker.',
+          text: ['The Map is laid out in a grid of squares. Each square can contain one of the following: the Blob, a Munchie, or a Blocker.'],
         },
         {
           heading: 'Gameplay',
-          text: 'Each player takes turns choosing a move for the Blob. You may move one direction as many spaces as you want. You must move at least one space. You cannot move through Blockers or off the Map!',
+          text: ['Each player takes turns choosing a move for the Blob. You may move one direction as many spaces as you want. You must move at least one space. You cannot move through Blockers or off the Map!',
+            'Each Munchie you you encounter will be added to your jar, and you will earn points.',
+            'Beware: some Munchies might have negative points!'
+          ],
         },
         {
           heading: 'Keys',
-          text: 'Space/Enter: Begin game or finalize turn.'
+          text: [
+            'Space/Enter: Begin game or finalize turn',
+            'Arrows/WASD: Select direction and distance to move',
+            'O: Options',
+            'I: Instructions (this page!)',
+            'R: Reset',
+            'Esc: Close or cancel open page'
+          ],
         }
       ],
       buttons: [{
         text: 'Done',
         style: 'button-1',
-        action: this.displayInstructions.bind(this),
+        action: this.closePages.bind(this),
       }, ],
       show: false,
     };
@@ -420,6 +424,7 @@ class MunchieGobblerGame {
       title: 'Reset Game Confirmation',
       paragraphs: [{
         heading: 'Are you sure you want to reset this game?',
+        text: ['Resetting the game will discard all gobbled munchies and generate a new board.']
       }, ],
       buttons: [{
           text: 'Play On',
@@ -444,7 +449,7 @@ class MunchieGobblerGame {
     this.prompt = {
       welcome: 'Press Space or Enter to start Game!',
       pause: 'Press Esc to return to Game...',
-      playerLine2: 'Use the arrow keys to select where to move the Blob.',
+      playerLine2: 'Tap the arrow keys to select where to move the Blob.',
       playerLine3: 'Press Space or Enter to finalize.',
       winner: '$Player has won the game! They ate Munchies to earn $Points points!',
     };
@@ -570,7 +575,6 @@ class MunchieGobblerGame {
   /*
    * Handle the arrow moves
    */
-
   addMove(direction) {
     if (!this.pause && this.currentGame) {
       let move = this.currentMove;
