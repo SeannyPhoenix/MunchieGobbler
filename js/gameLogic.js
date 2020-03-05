@@ -29,13 +29,12 @@ class GameBoard {
 
   }
 
-  setItem(x, y, item) {
-    if (x <= this.dimX && y <= this.dimY) {
-      let position = twoDimToOneDim(x, y, this.dimX);
-      if (this.board[position]) {
+  setItem(index, item) {
+    if (index < this.size) {
+      if (this.board[index]) {
         return false;
       } else {
-        this.board[position] = item;
+        this.board[index] = item;
         return true;
       }
     } else {
@@ -43,7 +42,7 @@ class GameBoard {
     }
   }
 
-  getItem1D(index) {
+  getItem(index) {
     if (index < this.size) {
       return this.board[index];
     } else {
@@ -51,13 +50,10 @@ class GameBoard {
     }
   }
 
-  getItem(x, y) {
-    if (x <= this.dimX && y <= this.dimY) {
-      let position = twoDimToOneDim(x, y, this.dimX);
-      return this.board[position];
-    } else {
-      return null;
-    }
+  removeItem(index) {
+    let item = this.getItem(index);
+    this.board[index] = null;
+    return item;
   }
 
   getSize() {
@@ -107,12 +103,17 @@ class Munchie extends Item {
   constructor(name, points) {
     super(name, points, 'munchie');
   }
+
+  gobble(player) {
+    console.log(`${player} gobbled the ${this.name} for ${this.getScore()} points!`);
+  }
 }
 
 class Blob extends Item {
   constructor() {
     super('blob', 0, 'blob');
   }
+
 }
 
 class MunchieGobblerGame {
@@ -135,8 +136,10 @@ class MunchieGobblerGame {
     this.setInstructions();
     buildInstructions(this.instructions);
 
+    this.setResetDialog();
+    buildResetDiaolg(this.resetDialog);
+
     this.setPrompt();
-    buildPromptList(this.prompt);
     updatePromptStart(this.prompt);
 
     buildFooter();
@@ -144,36 +147,57 @@ class MunchieGobblerGame {
     this.setEvents();
     buildEventHandlers(this.events);
 
+    this.setMoves();
+
     this.currentGame = false;
+    this.pause = false;
   }
 
   /*
    * Generate a new board
    */
   startGame() {
-    console.log('New Game');
-
-    this.gameBoard = new GameBoard(this.options.boardX, this.options.boardY);
+    this.currentGame = true;
+    this.gameBoard = new GameBoard(this.options.dimX, this.options.dimY);
 
     this.player = 'Player 1';
+    this.munchiesGobbled = {
+      'Player 1': [],
+      'Player 2': [],
+    };
+
     this.currentMove = {
       direction: null,
-      spaces: [],
+      spaces: null,
+      hasMoves: function() {
+        return !!this.direction;
+      },
+      reset: function() {
+        this.direction = null;
+        this.spaces = null;
+      },
+      addMove: function(index, direction) {
+        this.direction = direction;
+        this.spaces.push(index);
+      },
+      lastMove: function() {
+        return this.spaces[this.spaces.length - 1];
+      },
     };
-    this.pause = false;
-
-
-    let blobCoods = randomizeCoordinates(this.gameBoard.getDimensions());
 
     this.blob = {
-      blobX: blobCoods.x,
-      blobY: blobCoods.y,
+      index: randomizeInt({
+        lower: 0,
+        upper: this.options.size(),
+      }),
       blob: new Blob(),
+      moveTo: function(index) {
+        this.index = index;
+      },
     }
 
     this.gameBoard.setItem(
-      this.blob.blobX,
-      this.blob.blobY,
+      this.blob.index,
       this.blob.blob);
 
     switch (this.options.obstacles) {
@@ -207,24 +231,40 @@ class MunchieGobblerGame {
         break;
     }
 
-    let range = {
-      upper: this.gameBoard.getSize() * .15,
-      lower: this.gameBoard.getSize() * .05,
-    }
-    let munchieCount = randomizeInt(range);
+    let munchieCount = randomizeInt({
+      lower: this.options.size() * .1,
+      upper: this.options.size() * .15,
+    });
 
     let upperLimit = munchieCount + (munchieCount / 2);
     for (let i = 0; i < munchieCount && i < upperLimit; i++) {
-      let coord = randomizeCoordinates(this.gameBoard.getDimensions());
-      if (!this.gameBoard.getItem(coord.x, coord.y)) {
-        this.gameBoard.setItem(coord.x, coord.y, new Munchie('candy', 1));
+      let index = randomizeInt({
+        lower: 0,
+        upper: this.options.size(),
+      });
+      if (this.spaceCheck(index)) {
+        this.gameBoard.setItem(index, new Munchie('candy', 1));
       } else {
         munchieCount++;
       }
     }
+    console.log(this.resetDialog.reset);
+    if (this.resetDialog.reset) {
+      console.log('Reset');
+      updateBoard(this.gameBoard);
+      this.resetDialog.reset = false;
+    } else {
+      console.log('New');
+      showBoard(this.gameBoard);
+    }
+  }
 
-    showBoard(this.gameBoard);
-
+  spaceCheck(index) {
+    if (this.gameBoard.getItem(index)) {
+      console.log('Squash!');
+      return false;
+    }
+    return true;
   }
 
   /*
@@ -238,15 +278,29 @@ class MunchieGobblerGame {
       default:
         this.player = 'Player 1';
     }
+    updatePromptPlayer(this.prompt, this.player);
   }
 
   finalizeTurn() {
     if (!this.currentGame && !this.pause) {
-      this.currentGame = true;
       this.startGame();
       updatePromptPlayer(this.prompt, this.player);
-    } else if (!this.pause) {
-
+    } else if (!this.pause && this.currentMove.hasMoves()) {
+      this.currentMove.spaces.forEach(index => {
+        let munchie = this.gameBoard.removeItem(index);
+        if (munchie) {
+          this.munchiesGobbled[this.player].push(munchie);
+        }
+      });
+      this.switchPlayer();
+      this.gameBoard.removeItem(this.blob.index);
+      this.blob.moveTo(index);
+      this.gameBoard.setItem(
+        this.blob.index,
+        this.blob.blob);
+      this.currentMove.reset();
+      clearMoves();
+      updateBoard(this.gameBoard);
     }
   }
 
@@ -265,35 +319,38 @@ class MunchieGobblerGame {
       icon: 'fa-file-alt',
       action: this.displayInstructions.bind(this),
       float: 'right',
-    })
+    });
+    this.menu.addItem({
+      title: 'Reset Game',
+      type: 'click',
+      icon: 'fa-undo-alt',
+      action: this.displayResetDialog.bind(this),
+      float: 'right',
+    });
   }
 
   setOptions() {
     this.options = {
-      boardX: 7,
-      boardY: 7,
+      dimX: 11,
+      dimY: 11,
+      size: function() {
+        return this.dimX * this.dimY;
+      },
       obstacles: 'none',
       munchies: 'average',
       buttons: [{
           text: 'Cancel',
           style: 'button-2',
-          action: this.displayOptions.bind(this),
+          action: this.closePages.bind(this),
         },
         {
           text: 'Save',
           style: 'button-1',
           action: this.displayOptions.bind(this),
-        }
+        },
       ],
       show: false,
     };
-  }
-
-  displayOptions() {
-    this.options.show = !this.options.show;
-    this.instructions.show = false;
-    this.pause = this.options.show;
-    showPage(this.options.show, this.instructions.show);
   }
 
   setInstructions() {
@@ -321,29 +378,29 @@ class MunchieGobblerGame {
     };
   }
 
-  displayInstructions() {
-    if (this.instructions.show) {
-      this.closePage();
-    } else {
-      this.instructions.show = true;
-      this.options.show = false;
-      this.pause = true;
-      updatePromptPause(this.prompt);
-    }
-    showPage(this.options.show, this.instructions.show);
-  }
-
-  closePage() {
-    if (this.pause) {
-      this.options.show = false;
-      this.instructions.show = false;
-      this.pause = false;
-      if (this.currentGame) {
-        updatePromptPlayer(this.prompt, this.player);
-      } else {
-        updatePromptStart(this.prompt);
-      }
-      showPage(this.options.show, this.instructions.show);
+  setResetDialog() {
+    this.resetDialog = {
+      reset: false,
+      title: 'Reset Game Confirmation',
+      paragraphs: [{
+        heading: 'Are you sure you want to reset this game?',
+      }, ],
+      buttons: [{
+          text: 'Play On',
+          style: 'button-2',
+          action: this.closePages.bind(this),
+        },
+        {
+          text: 'Reset Game',
+          style: 'button-1',
+          action: function() {
+            this.closePages();
+            this.resetDialog.reset = true;
+            setTimeout(this.startGame.bind(this), 500)
+          }.bind(this),
+        },
+      ],
+      show: false,
     }
   }
 
@@ -362,13 +419,34 @@ class MunchieGobblerGame {
       keydown: {
         Space: this.finalizeTurn.bind(this),
         Enter: this.finalizeTurn.bind(this),
-        ArrowUp: this.goUp.bind(this),
-        ArrowRight: this.goRight.bind(this),
-        ArrowDown: this.goDown.bind(this),
-        ArrowLeft: this.goLeft.bind(this),
-        KeyO: this.displayOptions.bind(this),
+        ArrowUp: function() {
+          this.addMove('up');
+        }.bind(this),
+        KeyW: function() {
+          this.addMove('up');
+        }.bind(this),
+        ArrowRight: function() {
+          this.addMove('right');
+        }.bind(this),
+        KeyD: function() {
+          this.addMove('down');
+        }.bind(this),
+        ArrowDown: function() {
+          this.addMove('down');
+        }.bind(this),
+        KeyS: function() {
+          this.addMove('down');
+        }.bind(this),
+        ArrowLeft: function() {
+          this.addMove('left');
+        }.bind(this),
+        KeyA: function() {
+          this.addMove('left');
+        }.bind(this),
         KeyI: this.displayInstructions.bind(this),
-        Escape: this.closePage.bind(this),
+        KeyO: this.displayOptions.bind(this),
+        KeyR: this.displayResetDialog.bind(this),
+        Escape: this.closePages.bind(this),
       },
       click: {
 
@@ -376,41 +454,114 @@ class MunchieGobblerGame {
     };
   }
 
-  goUp() {
-    let move = this.currentMove;
+  setMoves() {
+    // methods calculate the new index for each move type
+    this.moveCalc = {
+      up: function(index, width) {
+        return index - width;
+      },
+      right: function(index) {
+        return index + 1;
+      },
+      down: function(index, width) {
+        return index + width;
+      },
+      left: function(index) {
+        return index - 1;
+      }
+    }
+
+    // methods check to make sure the move isn't going out of bounds for each move type
+    this.moveValidate = {
+      up: function(index) {
+        return index >= 0;
+      },
+      right: function(index, origin, width) {
+        return Math.floor(index / width) === Math.floor(origin / width);
+      },
+      down: function(index, origin, width, size) {
+        return index <= size;
+      },
+      left: function(index, origin, width) {
+        return Math.floor(index / width) === Math.floor(origin / width);
+      }
+    }
+  }
+
+
+  /*
+   * displayOptions, displayInstructions, and closePages handle the overlay pages
+   */
+  displayOptions() {
+    this.closePages();
+    this.options.show = true;
+    this.pause = true;
+    updatePromptPause(this.prompt);
+    showPage('options');
+  }
+
+  displayInstructions() {
+    this.closePages();
+    this.instructions.show = true;
+    this.pause = true;
+    updatePromptPause(this.prompt);
+    showPage('instructions');
+  }
+
+  displayResetDialog() {
+    this.closePages();
+    this.resetDialog.show = true;
+    this.pause = true;
+    updatePromptPause(this.prompt);
+    showPage('resetDialog');
+  }
+
+  closePages() {
+    if (this.pause) {
+      this.options.show = false;
+      this.instructions.show = false;
+      this.resetDialog.show = false;
+      this.pause = false;
+      if (this.currentGame) {
+        updatePromptPlayer(this.prompt, this.player);
+      } else {
+        updatePromptStart(this.prompt);
+      }
+      showPage(null);
+    }
+  }
+
+  /*
+   * Handle the arrow moves
+   */
+
+  addMove(direction) {
     if (!this.pause && this.currentGame) {
-      if (move.direction !== 'up') {
-        move.direction = 'up';
+      let move = this.currentMove;
+      let lastMove, nextMove;
+      if (move.direction !== direction) {
+        move.direction = direction;
         move.spaces = [];
       }
-      lastMove = move.spaces[move.spaces.length - 1];
-      if (lastMove >= 0) {
-        move.spaces.push(lastMove - this.boardX);
+      if (move.spaces.length > 0) {
+        // Start at the last move
+        lastMove = move.lastMove();
       } else {
-        console.log('Cannot leave map!');
+        // Otherwise, start at the Blob's current index
+        lastMove = this.blob.index;
       }
+      nextMove = this.moveCalc[direction](lastMove, this.options.dimX);
+      if (this.moveValidate[direction](
+          nextMove,
+          lastMove,
+          this.options.dimX,
+          this.options.size())) {
+        // Only add move if we're not off the board!
+        move.spaces.push(nextMove);
+      }
+      showMoves(move);
     }
   }
-
-  goRight() {
-    if (!this.pause && this.currentGame) {
-      console.log('Go Right');
-    }
-  }
-
-  goDown() {
-    if (!this.pause && this.currentGame) {
-      console.log('Go Down');
-    }
-  }
-
-  goLeft() {
-    if (!this.pause && this.currentGame) {
-      console.log('Go Left');
-    }
-  }
-
-
 }
 
 let thisGame = new MunchieGobblerGame();

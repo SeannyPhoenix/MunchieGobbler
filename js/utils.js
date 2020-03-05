@@ -170,21 +170,27 @@ function randomizeInt(range) {
   return rand;
 }
 
-function randomizeCoordinates(dimensions) {
-  let x = randomizeInt({
-    lower: 0,
-    upper: dimensions.x - 1,
-  });
-  let y = randomizeInt({
-    lower: 0,
-    upper: dimensions.y - 1,
-  });
-  return ({
-    x: x,
-    y: y,
-  })
-}
+/*
+ * Fisher–Yates Shuffle
+ * implimented by Mike Bostock
+ * https://bost.ocks.org/mike/shuffle/
+ */
 
-function twoDimToOneDim(x, y, width) {
-  return x + (y * width);
+function shuffle(array) {
+  var m = array.length,
+    t, i;
+
+  // While there remain elements to shuffle…
+  while (m) {
+
+    // Pick a remaining element…
+    i = Math.floor(Math.random() * m--);
+
+    // And swap it with the current element.
+    t = array[m];
+    array[m] = array[i];
+    array[i] = t;
+  }
+
+  return array;
 }

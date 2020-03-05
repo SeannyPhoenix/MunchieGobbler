@@ -7,8 +7,25 @@ const elems = {
   footer: document.querySelector('footer'),
 }
 
-const eventHandlers = {
+const eventHandlers = {};
 
+const currentMove = {
+  direction: null,
+  spaces: [],
+  hasMoves: function() {
+    return !!this.direction;
+  },
+  reset: function() {
+    this.direction = null;
+    this.spaces = [];
+  },
+  addMove: function(direction, index) {
+    this.direction = direction;
+    this.spaces.push(index);
+  },
+  lastMove: function() {
+    return this.spaces[this.spaces.length - 1];
+  },
 }
 
 /*
@@ -120,10 +137,34 @@ function buildInstructions(instructions) {
 }
 
 /*
- * Build Prompt
+ * Build Reset Dialog
  */
-function buildPromptList(prompt) {
+function buildResetDiaolg(resetDialog) {
+  elems.resetDialog = document.createElement('div');
+  elems.resetDialog.classList.add('page', 'reset-dialog');
+  elems.playingField.appendChild(elems.resetDialog);
 
+  let title = document.createElement('h2');
+  title.innerText = resetDialog.title;
+  elems.resetDialog.appendChild(title);
+
+  resetDialog.paragraphs.forEach(paragraph => {
+    let heading = document.createElement('h3');
+    heading.innerText = paragraph.heading;
+    elems.resetDialog.appendChild(heading);
+
+    let text = document.createElement('p');
+    text.innerText = paragraph.text;
+    elems.resetDialog.appendChild(text);
+  })
+
+  resetDialog.buttons.forEach(button => {
+    let btn = document.createElement('button');
+    btn.classList.add(button.style);
+    btn.addEventListener('click', button.action);
+    btn.innerText = button.text;
+    elems.resetDialog.appendChild(btn);
+  });
 }
 
 /*
@@ -133,7 +174,7 @@ function buildFooter() {
   //Copyright Info
   let copyright = document.createElement('p');
   copyright.className = 'copyright';
-  copyright.innerHTML = '&#169;	2020 Seanny Drakon Phoenix';
+  copyright.innerHTML = '&#169;  2020 Seanny Drakon Phoenix';
   elems.footer.appendChild(copyright);
 
   //GA Link
@@ -141,8 +182,6 @@ function buildFooter() {
   gaLink.className = 'ga-link';
   gaLink.href = 'https://generalassemb.ly/';
   gaLink.target = '_blank';
-  gaLink.addEventListener('mouseover', () => activateIcon(gaLinkIcon));
-  gaLink.addEventListener('mouseout', () => deactivateIcon(gaLinkIcon));
 
   let gaIcon = document.createElement('div');
   gaIcon.className = 'ga-icon';
@@ -174,17 +213,10 @@ function buildEventHandlers(events) {
   });
 }
 
-function activateIcon(icon) {
-  icon.classList.add('show');
-}
-
-function deactivateIcon(icon) {
-  icon.classList.remove('show');
-}
 
 function showBoard(board) {
   let gameBoard = document.createElement('div');
-  gameBoard.classList = 'game-board';
+  gameBoard.classList.add('game-board');
 
   // Set up the number of columns
   let gridColumns = '';
@@ -193,44 +225,148 @@ function showBoard(board) {
   }
   gameBoard.setAttribute('style', `grid-template-columns: ${gridColumns};`);
 
-
   // Create and add squares
-  let queue = new DoQueue(10, 20);
-  for (let i = 0; i < board.dimX * board.dimY; i++) {
+  let delay = Math.floor(300 / board.size);
+  let queue = new DoQueue(delay / 2, delay);
+  let shuffler = [];
+  for (let i = 0; i < board.size; i++) {
     let square = document.createElement('div');
     square.classList.add('square');
     square.id = `sq${i}`;
-    item = board.getItem1D(i);
+    item = board.getItem(i);
     if (item) {
       let itemDiv = document.createElement('div');
       itemDiv.classList.add(item.getType());
       square.appendChild(itemDiv);
     }
-    queue.addToQueue(() => {
-      gameBoard.appendChild(square);
-    });
+    shuffler.push(i);
+    gameBoard.appendChild(square);
   }
   elems.playingField.append(gameBoard);
+
+  //Pop the squares into view in a random order.
+  shuffler = shuffle(shuffler);
+  shuffler.forEach(id => {
+    queue.addToQueue(() => {
+      let square = document.querySelector(`#sq${id}`);
+      square.classList.add('pop-in');
+      if (board.getItem(id)) {
+        setTimeout(() => {
+          square.firstChild.classList.add('pop-in');
+        }, 800);
+      }
+    })
+  });
 }
 
-function showPage(options, instructions) {
+function updateBoard(board) {
+  let delay = Math.floor(300 / board.size);
+  let queue = new DoQueue(delay, board.size);
+  for (let i = 0; i < board.size; i++) {
+    let square = document.querySelector(`#sq${i}`)
+    let sundry = square.children;
+    for (let i = sundry.length - 1; i >= 0; i--) {
+      sundry[i].remove();
+    }
+    item = board.getItem(i);
+    if (item) {
+      let itemDiv = document.createElement('div');
+      itemDiv.classList.add(item.getType(), 'pop-in');
+      square.appendChild(itemDiv);
+    }
+  }
+}
+
+function removeBoard() {
+  let squares = document.querySelectorAll('.square');
+  let delay = Math.floor(300 / squares.length);
+  let queue = new DoQueue(delay / 2, delay);
+  Object.values(squares).forEach(square => {
+    queue.addToQueue(() => {
+      square.setAttribute('style', 'visibility: hidden;');
+    })
+  });
+  let board = document.querySelector('.game-board');
+  queue.addToQueue(() => {
+    board.remove();
+  })
+}
+
+function showMoves(newMove) {
+  let queue = new DoQueue();
+  if (currentMove.direction !== newMove.direction) {
+    //remove old move blocks;
+    for (let i = currentMove.spaces.length - 1; i >= 0; i--) {
+      queue.addToQueue((index) => {
+        let arrow = document.querySelector(`#arrow${index}`);
+        arrow.classList.add('bye');
+        setTimeout(() => {
+          arrow.remove();
+        }, 200);
+      }, currentMove.spaces[i], 200);
+    }
+    currentMove.reset();
+  }
+  if (newMove.lastMove === currentMove.lastMove) {
+    //We haven't advanced. Flash instead.
+    flashLastMove();
+  } else {
+    //We have moved. Add arrow.
+    currentMove.addMove(newMove.direction, newMove.lastMove());
+    index = currentMove.lastMove();
+    let arrow = document.createElement('i');
+    arrow.classList.add(
+      `fa`,
+      `fa-arrow-circle-${currentMove.direction}`,
+      `arrow`);
+    arrow.id = `arrow${index}`;
+    queue.addToQueue(() => {
+      document.querySelector(`#sq${index}`).appendChild(arrow);
+    }, null, 0);
+  }
+}
+
+function clearMoves() {
+  currentMove.reset();
+}
+
+function flashLastMove() {
+  let arrow = document.querySelector(`#arrow${currentMove.lastMove()}`);
+  arrow.classList.add('flash');
+  setTimeout(() => {
+    arrow.classList.remove('flash');
+  }, 500);
+}
+
+function showPage(page) {
   let mainElements = document.querySelectorAll('aside');
   for (let i = 0; i < mainElements.length; i++) {
-    if (options || instructions) {
+    if (page) {
       mainElements[i].classList.add('fade');
     } else {
       mainElements[i].classList.remove('fade');
     }
   }
-  if (options) {
-    elems.options.classList.add('show');
-    elems.instructions.classList.remove('show');
-  } else if (instructions) {
-    elems.options.classList.remove('show');
-    elems.instructions.classList.add('show');
-  } else {
-    elems.options.classList.remove('show');
-    elems.instructions.classList.remove('show');
+  switch (page) {
+    case 'options':
+      elems.options.classList.add('show');
+      elems.instructions.classList.remove('show');
+      elems.resetDialog.classList.remove('show');
+      break;
+    case 'instructions':
+      elems.options.classList.remove('show');
+      elems.instructions.classList.add('show');
+      elems.resetDialog.classList.remove('show');
+      break;
+    case 'resetDialog':
+      elems.options.classList.remove('show');
+      elems.instructions.classList.remove('show');
+      elems.resetDialog.classList.add('show');
+      break;
+    default:
+      elems.options.classList.remove('show');
+      elems.instructions.classList.remove('show');
+      elems.resetDialog.classList.remove('show');
   }
 }
 

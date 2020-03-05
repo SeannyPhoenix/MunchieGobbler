@@ -4,7 +4,8 @@
 * {
   --blue: #7ebfe9;
   --green: #0d5d39;
-  --options-fly-timeout: .2s;
+  --page-transition: .5s;
+  --arrow-fade: .2s;
 }
 
 body {
@@ -62,7 +63,7 @@ main {
 
 aside {
   opacity: 1;
-  transition: opacity var(--options-fly-timeout);
+  transition: opacity var(--page-transition);
   border: solid var(--blue) thin;
 }
 
@@ -89,7 +90,7 @@ aside {
   width: 500px;
   position: absolute;
   background-color: var(--blue);
-  transition: height var(--options-fly-timeout);
+  transition: height var(--page-transition);
   box-shadow: 0 0 20px black;
   z-index: 1;
   overflow: hidden;
@@ -146,21 +147,30 @@ button {
   padding: 5px;
 }
 
-.game-board>div {
+.square {
   height: 40px;
   width: 40px;
   border: solid red thin;
+  transform: scale(0);
+  transition: transform .5s;
 }
 
-.game-board>div>div {
+.munchie, .blob {
   height: 38px;
   width: 38px;
+  position: absolute;
+  transform: scale(0);
+  transition: transform 1s;
 }
 
 .blob {
   border-radius: 50%;
   background-color: red;
   animation: grow 1s 1, pulse 1s 1s infinite;
+}
+
+.pop-in, .munchie .pop-in {
+  transform: scale(1);
 }
 
 @keyframes grow {
@@ -194,7 +204,7 @@ button {
 .munchie {
   background-color: blue;
   border-radius: 15%;
-  animation: dance 2s infinite;
+  /* animation: dance 2s infinite; */
 }
 
 @keyframes dance {
@@ -217,6 +227,67 @@ button {
 
 .munchie .cupcake {
   background-color: pink;
+}
+
+.arrow {
+  /* display: block; */
+  height: 38px;
+  width: 38px;
+  line-height: 38px;
+  text-align: center;
+  font-size: 1.5em;
+  color: var(--blue);
+  /* animation: fadeIn .2s 1; */
+}
+
+.bye {
+  animation: fadeOut .2s 1;
+}
+
+.flash {
+  animation: flashArrow .5s 1;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes flashArrow {
+  0% {
+    opacity: 1;
+  }
+
+  25% {
+    opacity: .25;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  75% {
+    opacity: .25;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 .prompt-list {
@@ -283,10 +354,6 @@ h2 .prompt {
 /*
  * Footer
  */
-footer .ga-link-text:hover {
-  text-shadow: 0 0 2px var(--blue);
-}
-
-footer .ga-link-icon {
+.ga-link:hover * {
   text-shadow: 0 0 2px var(--blue);
 }

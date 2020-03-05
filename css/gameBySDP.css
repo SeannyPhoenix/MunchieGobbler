@@ -82,17 +82,17 @@ footer .ga-icon {
   float: right;
 }
 
-footer .ga-link-text {
+.ga-link-text {
   margin: 0 5px;
   float: right;
   transition: text-shadow .5s;
 }
 
-footer .ga-link-text:hover {
+.ga-link:hover * {
   text-shadow: 0 0 2px;
 }
 
-footer .ga-link-icon {
+.ga-link-icon {
   font-size: .8em;
   line-height: 50px;
   opacity: 0;
@@ -100,6 +100,6 @@ footer .ga-link-icon {
   float: right;
 }
 
-footer .show {
+.ga-link:hover .ga-link-icon {
   opacity: 1;
 }
