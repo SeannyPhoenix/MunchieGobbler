@@ -80,7 +80,7 @@ class Item {
   constructor(name, points = 0, type) {
     this.name = name;
     this.type = type;
-    this.points = 0;
+    this.points = points;
 
     this.element = document.createElement('div');
     this.element.classList.add(this.type);
@@ -130,6 +130,8 @@ class MunchieGobblerGame {
 
     buildPlayingField();
 
+    buildScoreBoards();
+
     this.setOptions();
     buildOptions(this.options);
 
@@ -161,6 +163,7 @@ class MunchieGobblerGame {
     this.gameBoard = new GameBoard(this.options.dimX, this.options.dimY);
 
     this.player = 'Player 1';
+    this.munchiesPlaced = {};
     this.munchiesGobbled = {
       'Player 1': [],
       'Player 2': [],
@@ -243,18 +246,18 @@ class MunchieGobblerGame {
         upper: this.options.size(),
       });
       if (this.spaceCheck(index)) {
-        this.gameBoard.setItem(index, new Munchie('candy', 1));
+        this.munchiesPlaced[index] = new Munchie('candy', 1);
+        this.gameBoard.setItem(index, this.munchiesPlaced[index]);
+        console.log(this.munchiesLeft());
       } else {
         munchieCount++;
       }
     }
-    console.log(this.resetDialog.reset);
     if (this.resetDialog.reset) {
       console.log('Reset');
       updateBoard(this.gameBoard);
       this.resetDialog.reset = false;
     } else {
-      console.log('New');
       showBoard(this.gameBoard);
     }
   }
@@ -265,6 +268,10 @@ class MunchieGobblerGame {
       return false;
     }
     return true;
+  }
+
+  munchiesLeft() {
+    return Object.keys(thisGame.munchiesPlaced).length;
   }
 
   /*
@@ -281,26 +288,55 @@ class MunchieGobblerGame {
     updatePromptPlayer(this.prompt, this.player);
   }
 
+  /*
+   * finalizeTurn
+   */
   finalizeTurn() {
     if (!this.currentGame && !this.pause) {
+      // No current game
+      console.log('New Game');
       this.startGame();
       updatePromptPlayer(this.prompt, this.player);
     } else if (!this.pause && this.currentMove.hasMoves()) {
+      // Move the Blob and Gobble Munchies!
+      console.log('Gobble Gobble!');
       this.currentMove.spaces.forEach(index => {
         let munchie = this.gameBoard.removeItem(index);
         if (munchie) {
+          delete this.munchiesPlaced[index];
           this.munchiesGobbled[this.player].push(munchie);
+          console.log(munchie.getScore());
         }
       });
-      this.switchPlayer();
-      this.gameBoard.removeItem(this.blob.index);
-      this.blob.moveTo(index);
-      this.gameBoard.setItem(
-        this.blob.index,
-        this.blob.blob);
-      this.currentMove.reset();
-      clearMoves();
-      updateBoard(this.gameBoard);
+      //Check if we have any more munchies left!
+      if (this.munchiesLeft() === 0) {
+        console.log('Game Over');
+        this.pause = true;
+        this.currentGame = false;
+        clearMoves();
+        removeBoard();
+        let player1Score = 0;
+        this.munchiesGobbled['Player 1'].forEach(munchie => {
+          player1Score += munchie.getScore();
+        });
+        console.log(`Player 1 scored ${player1Score} points!`);
+        let player2Score = 0;
+        this.munchiesGobbled['Player 2'].forEach(munchie => {
+          player2Score += munchie.getScore();
+        });
+        console.log(`Player 2 scored ${player2Score} points!`);
+      } else {
+        console.log('Next Turn');
+        this.switchPlayer();
+        this.gameBoard.removeItem(this.blob.index);
+        this.blob.moveTo(index);
+        this.gameBoard.setItem(
+          this.blob.index,
+          this.blob.blob);
+        this.currentMove.reset();
+        clearMoves();
+        updateBoard(this.gameBoard);
+      }
     }
   }
 
@@ -331,8 +367,8 @@ class MunchieGobblerGame {
 
   setOptions() {
     this.options = {
-      dimX: 11,
-      dimY: 11,
+      dimX: 6,
+      dimY: 6,
       size: function() {
         return this.dimX * this.dimY;
       },

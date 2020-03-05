@@ -72,6 +72,9 @@ function buildMenu(menu) {
   });
 }
 
+/*
+ * Build Playing Field
+ */
 function buildPlayingField() {
   elems.leftBar = document.createElement('aside');
   elems.leftBar.className = 'left-bar';
@@ -86,6 +89,27 @@ function buildPlayingField() {
   elems.main.appendChild(elems.playingField);
   elems.main.appendChild(elems.rightBar);
   elems.main.appendChild(elems.promptList);
+}
+
+/*
+ * Build Score Boards
+ */
+function buildScoreBoards() {
+  [elems.leftBar, elems.rightBar].forEach((scoreBoard, i) => {
+    let name = document.createElement('div');
+    name.classList.add('name');
+    name.innerText = `Player ${i+1}`;
+    scoreBoard.appendChild(name);
+
+    let munchies = document.createElement('div');
+    munchies.classList.add('munchie-jar');
+    scoreBoard.appendChild(munchies);
+
+    let score = document.createElement('div');
+    score.classList.add('score');
+    score.innerText = 'Score: 0';
+    scoreBoard.appendChild(score);
+  });
 }
 
 /*
