@@ -82,6 +82,9 @@ class Item {
           this.munchie.icon,
         ];
         break;
+      case 'blocker':
+        this.type = type;
+        this.classList = ['far', 'fa-times-circle'];
     }
     this.element = document.createElement('div');
     this.element.classList.add(type, ...this.classList);
@@ -119,5 +122,11 @@ class Munchie extends Item {
 class Blob extends Item {
   constructor() {
     super('blob');
+  }
+}
+
+class Blocker extends Item {
+  constructor() {
+    super('blocker');
   }
 }
