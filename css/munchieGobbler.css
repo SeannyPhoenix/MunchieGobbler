@@ -80,6 +80,9 @@ aside {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.name, .score {
   font-size: 1.5em;
 }
 
@@ -95,6 +98,8 @@ aside {
 }
 
 .munchie-jar .munchie {
+  line-height: 38px;
+  color: var(--yellow);
   position: inherit;
 }
 
@@ -301,9 +306,17 @@ button {
   transition: transform .5s;
 }
 
+.square div {
+  line-height: 38px;
+}
+
 .munchie, .blob {
   height: 38px;
   width: 38px;
+  line-height: 38px;
+  text-align: center;
+  font-size: 1.6em;
+  color: var(--green);
   position: absolute;
   transform: scale(0);
   transition: transform 1s;
@@ -348,8 +361,6 @@ button {
 }
 
 .munchie {
-  background-color: var(--yellow);
-  border-radius: 15%;
   /* animation: dance 2s infinite; */
 }
 
@@ -371,14 +382,10 @@ button {
   }
 }
 
-.munchie .cupcake {
-  background-color: pink;
-}
-
 .arrow {
   position: absolute;
   font-size: 1.5em;
-  color: var(--green);
+  color: var(--orange);
   z-index: 10;
   /* animation: fadeIn .2s 1; */
 }

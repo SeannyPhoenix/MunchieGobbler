@@ -196,6 +196,13 @@ function updateWidth() {
   rightCover.setAttribute('style', `width: ${width}px;`)
 }
 
+function updateOptions(options) {
+  let newX = parseInt(document.querySelector('.width').value);
+  options.dimensions.newX = newX;
+  let newY = parseInt(document.querySelector('.height').value);
+  options.dimensions.newY = newY;
+}
+
 /*
  * Build Instructions Page
  */
@@ -331,8 +338,8 @@ function showBoard(board) {
     square.id = `sq${i}`;
     item = board.getItem(i);
     if (item) {
-      let itemDiv = document.createElement('div');
-      itemDiv.classList.add(item.getType());
+      let itemDiv = item.getElement();
+      itemDiv.classList.add(item.getType(), 'pop-in');
       square.appendChild(itemDiv);
     }
     shuffler.push(i);
@@ -366,7 +373,7 @@ function updateBoard(board) {
     }
     item = board.getItem(i);
     if (item) {
-      let itemDiv = document.createElement('div');
+      let itemDiv = item.getElement();
       itemDiv.classList.add(item.getType(), 'pop-in');
       square.appendChild(itemDiv);
     }
@@ -447,22 +454,22 @@ function showPage(page) {
     case 'options':
       elems.options.classList.add('show');
       elems.instructions.classList.remove('show');
-      elems.resetDialog.classList.remove('show');
+      // elems.resetDialog.classList.remove('show');
       break;
     case 'instructions':
       elems.options.classList.remove('show');
       elems.instructions.classList.add('show');
-      elems.resetDialog.classList.remove('show');
+      // elems.resetDialog.classList.remove('show');
       break;
-    case 'resetDialog':
-      elems.options.classList.remove('show');
-      elems.instructions.classList.remove('show');
-      elems.resetDialog.classList.add('show');
-      break;
+      // case 'resetDialog':
+      //   elems.options.classList.remove('show');
+      //   elems.instructions.classList.remove('show');
+      //   elems.resetDialog.classList.add('show');
+      //   break;
     default:
       elems.options.classList.remove('show');
       elems.instructions.classList.remove('show');
-      elems.resetDialog.classList.remove('show');
+      // elems.resetDialog.classList.remove('show');
   }
 }
 
@@ -500,17 +507,15 @@ function resetPlayers() {
 }
 
 function addMunchie(munchie, player) {
-  let newMunchie = document.createElement('div');
-  newMunchie.classList.add('munchie');
   switch (player) {
     case 'Player 1':
-      elems.player1Score.querySelector('.munchie-jar').appendChild(newMunchie);
+      elems.player1Score.querySelector('.munchie-jar').appendChild(munchie.getElement());
       break;
     case 'Player 2':
-      elems.player2Score.querySelector('.munchie-jar').appendChild(newMunchie);
+      elems.player2Score.querySelector('.munchie-jar').appendChild(munchie.getElement());
       break;
   }
-  newMunchie.classList.add('pop-in');
+  // newMunchie.classList.add('pop-in');
 }
 
 function updatePromptStart(prompt) {

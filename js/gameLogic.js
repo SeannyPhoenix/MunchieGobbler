@@ -112,8 +112,10 @@ class MunchieGobblerGame {
       }.bind(this));
     }
     this.currentGame = true;
-    // this.gameBoard = new GameBoard(this.options.dimensions.x, this.options.dimensions.y);
-    this.gameBoard = new GameBoard(7, 7);
+    this.options.dimensions.x = this.options.dimensions.newX;
+    this.options.dimensions.y = this.options.dimensions.newY;
+
+    this.gameBoard = new GameBoard(this.options.dimensions.x, this.options.dimensions.y);
 
     this.players = new Players();
     this.switchPlayer();
@@ -174,7 +176,7 @@ class MunchieGobblerGame {
     // Generate Munchies
 
     switch (this.options.munchies) {
-      case 'sweets':
+      case 'sweet':
         break;
       case 'sweet and sour':
         break;
@@ -196,7 +198,7 @@ class MunchieGobblerGame {
         upper: this.options.size(),
       });
       if (this.spaceCheck(index)) {
-        this.munchiesPlaced[index] = new Munchie('candy', 1);
+        this.munchiesPlaced[index] = new Munchie('sweet', 'candyCane');
         this.gameBoard.setItem(index, this.munchiesPlaced[index]);
       } else {
         munchieCount++;
@@ -300,9 +302,11 @@ class MunchieGobblerGame {
     this.options = {
       dimensions: {
         x: 7,
+        newX: 7, // default width
         minX: 4,
         maxX: 11,
         y: 7,
+        newY: 7, // default height
         minY: 4,
         maxY: 11,
       },
@@ -322,11 +326,17 @@ class MunchieGobblerGame {
         {
           text: 'Save',
           style: 'button-1',
-          action: this.closePages.bind(this),
+          action: this.saveOptions.bind(this),
         },
       ],
       show: false,
     };
+  }
+
+  saveOptions() {
+    updateOptions(this.options);
+    this.closePages();
+    console.log(this.options);
   }
 
   setInstructions() {
