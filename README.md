@@ -10,10 +10,10 @@ I wanted to create a 2-player game, allowing players to compete against each oth
 
 Some extra features are listed below, as well whether they've been implemented.
 * Animate **Blob** Moves
-* Add Game Options
-* Icons for the **Blob**, **Munchies**, and **Blockers**
-* Different Point Values for **Munchies**
-* Negative Point Values for **Munchies**
+* Add Game Options -- *Partially completed*
+* Icons for the **Blob**, **Munchies**, and **Blockers** -- *Completed*
+* Different Point Values for **Munchies** -- *Completed*
+* Negative Point Values for **Munchies** -- *Completed*
 * Moving **Munchies**
 * Moving **Blockers**
 * 2 Moves per turn?
