@@ -17,13 +17,13 @@ class GameBoard {
    */
 
   constructor(x, y) {
-    this.dimX = x;
-    this.dimY = y;
+    this.x = x;
+    this.y = y;
     this.size = x * y;
 
     this.board = [];
 
-    for (let i = 0; i < this.dimX * this.dimY; i++) {
+    for (let i = 0; i < this.x * this.y; i++) {
       this.board.push(null);
     }
 
@@ -58,21 +58,6 @@ class GameBoard {
 
   getSize() {
     return this.size;
-  }
-
-  getDimensions() {
-    return {
-      x: this.dimX,
-      y: this.dimY,
-    }
-  }
-
-  displayInfo() {
-    return {
-      dimX: this.dimX,
-      dimY: this.dimY,
-      board: this.board.slice(),
-    };
   }
 }
 
@@ -127,7 +112,10 @@ class MunchieGobblerGame {
       }.bind(this));
     }
     this.currentGame = true;
-    this.gameBoard = new GameBoard(this.options.dimX, this.options.dimY);
+    this.options.dimensions.x = this.options.dimensions.newX;
+    this.options.dimensions.y = this.options.dimensions.newY;
+
+    this.gameBoard = new GameBoard(this.options.dimensions.x, this.options.dimensions.y);
 
     this.players = new Players();
     this.switchPlayer();
@@ -169,7 +157,7 @@ class MunchieGobblerGame {
       this.blob.index,
       this.blob.blob);
 
-    switch (this.options.obstacles) {
+    switch (this.options.blockers) {
       case 'none':
         break;
       case 'mild':
@@ -188,7 +176,7 @@ class MunchieGobblerGame {
     // Generate Munchies
 
     switch (this.options.munchies) {
-      case 'sweets':
+      case 'sweet':
         break;
       case 'sweet and sour':
         break;
@@ -210,7 +198,7 @@ class MunchieGobblerGame {
         upper: this.options.size(),
       });
       if (this.spaceCheck(index)) {
-        this.munchiesPlaced[index] = new Munchie('candy', 1);
+        this.munchiesPlaced[index] = new Munchie('sweet', 'candyCane');
         this.gameBoard.setItem(index, this.munchiesPlaced[index]);
       } else {
         munchieCount++;
@@ -312,13 +300,24 @@ class MunchieGobblerGame {
 
   setOptions() {
     this.options = {
-      dimX: 7,
-      dimY: 7,
-      size: function() {
-        return this.dimX * this.dimY;
+      dimensions: {
+        x: 7,
+        newX: 7, // default width
+        minX: 4,
+        maxX: 11,
+        y: 7,
+        newY: 7, // default height
+        minY: 4,
+        maxY: 11,
       },
-      obstacles: 'none',
-      munchies: 'average',
+      size: function() {
+        return this.dimensions.x * this.dimensions.y;
+      },
+      blockers: 'none',
+      munchies: {
+        availible: munchieStyles,
+        chosen: [],
+      },
       buttons: [{
           text: 'Cancel',
           style: 'button-2',
@@ -327,11 +326,17 @@ class MunchieGobblerGame {
         {
           text: 'Save',
           style: 'button-1',
-          action: this.closePages.bind(this),
+          action: this.saveOptions.bind(this),
         },
       ],
       show: false,
     };
+  }
+
+  saveOptions() {
+    updateOptions(this.options);
+    this.closePages();
+    console.log(this.options);
   }
 
   setInstructions() {
@@ -355,7 +360,7 @@ class MunchieGobblerGame {
             'Arrows/WASD: Select direction and distance to move',
             'O: Options',
             'I: Instructions (this page!)',
-            'R: Reset',
+            // 'R: Reset',
             'Esc: Close or cancel open page'
           ],
         }
@@ -543,11 +548,11 @@ class MunchieGobblerGame {
         // Otherwise, start at the Blob's current index
         lastMove = this.blob.index;
       }
-      nextMove = this.moveCalc[direction](lastMove, this.options.dimX);
+      nextMove = this.moveCalc[direction](lastMove, this.options.dimensions.x);
       if (this.moveValidate[direction](
           nextMove,
           lastMove,
-          this.options.dimX,
+          this.options.dimensions.x,
           this.options.size())) {
         // Only add move if we're not off the board!
         move.spaces.push(nextMove);

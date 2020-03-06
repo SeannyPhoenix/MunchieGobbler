@@ -115,10 +115,53 @@ function buildScoreBoards() {
 /*
  * Build Options Page
  */
-function buildOptions(options) {
+function buildOptions(options, saveFunction) {
   elems.options = document.createElement('div');
   elems.options.classList.add('page', 'options');
   elems.playingField.appendChild(elems.options);
+
+  let title = document.createElement('h2');
+  title.innerText = 'Options';
+  title.classList.add('options-title');
+  elems.options.appendChild(title);
+
+  let gameSize = document.createElement('div');
+  gameSize.classList.add('game-size');
+  elems.options.appendChild(gameSize);
+
+
+  let exampleGrid = document.createElement('div');
+  exampleGrid.classList.add('example');
+  let gridColumns = '';
+  for (let i = 0; i < 11; i++) {
+    gridColumns += '1fr ';
+  }
+  exampleGrid.setAttribute('style', `grid-template-columns: ${gridColumns};`);
+  gameSize.appendChild(exampleGrid);
+
+  for (var i = 0; i < (11 * 11); i++) {
+    let square = document.createElement('div');
+    square.classList.add('example-square');
+    exampleGrid.appendChild(square);
+  }
+
+  let sliderY = document.createElement('input');
+  sliderY.setAttribute('type', 'range');
+  sliderY.setAttribute('min', options.dimensions.minY);
+  sliderY.setAttribute('max', options.dimensions.maxY);
+  sliderY.setAttribute('value', options.dimensions.y);
+  sliderY.classList.add('slider', 'height');
+  sliderY.addEventListener('input', updateHeight);
+  gameSize.appendChild(sliderY);
+
+  let sliderX = document.createElement('input');
+  sliderX.setAttribute('type', 'range');
+  sliderX.setAttribute('min', options.dimensions.minX);
+  sliderX.setAttribute('max', options.dimensions.maxX);
+  sliderX.setAttribute('value', options.dimensions.x);
+  sliderX.classList.add('slider', 'width');
+  sliderX.addEventListener('input', updateWidth);
+  gameSize.appendChild(sliderX);
 
   options.buttons.forEach(button => {
     let btn = document.createElement('button');
@@ -127,6 +170,37 @@ function buildOptions(options) {
     btn.innerText = button.text;
     elems.options.appendChild(btn);
   });
+
+  let topCover = document.createElement('div');
+  topCover.classList.add('top-cover');
+  let height = (11 - options.dimensions.y) * 22;
+  topCover.setAttribute('style', `height: ${height}px;`)
+  gameSize.appendChild(topCover);
+
+  let rightCover = document.createElement('div');
+  rightCover.classList.add('right-cover');
+  let width = (11 - options.dimensions.x) * 22;
+  rightCover.setAttribute('style', `width: ${width}px;`)
+  gameSize.appendChild(rightCover);
+}
+
+function updateHeight() {
+  let topCover = elems.options.querySelector('.top-cover');
+  let height = (11 - this.value) * 22;
+  topCover.setAttribute('style', `height: ${height}px;`)
+}
+
+function updateWidth() {
+  let rightCover = elems.options.querySelector('.right-cover');
+  let width = (11 - this.value) * 22;
+  rightCover.setAttribute('style', `width: ${width}px;`)
+}
+
+function updateOptions(options) {
+  let newX = parseInt(document.querySelector('.width').value);
+  options.dimensions.newX = newX;
+  let newY = parseInt(document.querySelector('.height').value);
+  options.dimensions.newY = newY;
 }
 
 /*
@@ -249,7 +323,7 @@ function showBoard(board) {
 
   // Set up the number of columns
   let gridColumns = '';
-  for (let i = 0; i < board.dimX; i++) {
+  for (let i = 0; i < board.x; i++) {
     gridColumns += '1fr ';
   }
   gameBoard.setAttribute('style', `grid-template-columns: ${gridColumns};`);
@@ -264,8 +338,8 @@ function showBoard(board) {
     square.id = `sq${i}`;
     item = board.getItem(i);
     if (item) {
-      let itemDiv = document.createElement('div');
-      itemDiv.classList.add(item.getType());
+      let itemDiv = item.getElement();
+      itemDiv.classList.add(item.getType(), 'pop-in');
       square.appendChild(itemDiv);
     }
     shuffler.push(i);
@@ -299,7 +373,7 @@ function updateBoard(board) {
     }
     item = board.getItem(i);
     if (item) {
-      let itemDiv = document.createElement('div');
+      let itemDiv = item.getElement();
       itemDiv.classList.add(item.getType(), 'pop-in');
       square.appendChild(itemDiv);
     }
@@ -380,22 +454,22 @@ function showPage(page) {
     case 'options':
       elems.options.classList.add('show');
       elems.instructions.classList.remove('show');
-      elems.resetDialog.classList.remove('show');
+      // elems.resetDialog.classList.remove('show');
       break;
     case 'instructions':
       elems.options.classList.remove('show');
       elems.instructions.classList.add('show');
-      elems.resetDialog.classList.remove('show');
+      // elems.resetDialog.classList.remove('show');
       break;
-    case 'resetDialog':
-      elems.options.classList.remove('show');
-      elems.instructions.classList.remove('show');
-      elems.resetDialog.classList.add('show');
-      break;
+      // case 'resetDialog':
+      //   elems.options.classList.remove('show');
+      //   elems.instructions.classList.remove('show');
+      //   elems.resetDialog.classList.add('show');
+      //   break;
     default:
       elems.options.classList.remove('show');
       elems.instructions.classList.remove('show');
-      elems.resetDialog.classList.remove('show');
+      // elems.resetDialog.classList.remove('show');
   }
 }
 
@@ -433,17 +507,15 @@ function resetPlayers() {
 }
 
 function addMunchie(munchie, player) {
-  let newMunchie = document.createElement('div');
-  newMunchie.classList.add('munchie');
   switch (player) {
     case 'Player 1':
-      elems.player1Score.querySelector('.munchie-jar').appendChild(newMunchie);
+      elems.player1Score.querySelector('.munchie-jar').appendChild(munchie.getElement());
       break;
     case 'Player 2':
-      elems.player2Score.querySelector('.munchie-jar').appendChild(newMunchie);
+      elems.player2Score.querySelector('.munchie-jar').appendChild(munchie.getElement());
       break;
   }
-  newMunchie.classList.add('pop-in');
+  // newMunchie.classList.add('pop-in');
 }
 
 function updatePromptStart(prompt) {
