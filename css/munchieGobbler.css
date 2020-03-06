@@ -330,8 +330,9 @@ button {
 }
 
 .blob {
-  border-radius: 50%;
-  background-color: var(--yellow);
+  font-size: 2em;
+  color: var(--yellow);
+  text-shadow: 0 0 4px var(--orange);
   animation: grow 1s 1, pulse 1s 1s infinite;
 }
 

@@ -70,13 +70,14 @@ class Item {
     switch (type) {
       case 'blob':
         this.name = 'blob';
-        this.classList = ['blob'];
+        this.classList = ['fas', 'fa-splotch'];
         break;
       case 'munchie':
         this.type = type;
         this.munchie = this.pickRandom(category);
         this.name = this.munchie.name;
-        this.points = this.munchie.points;
+        // this.points = this.munchie.points;
+        this.points = 5;
         this.classList = [
           this.munchie.style,
           this.munchie.icon,
