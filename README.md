@@ -1,10 +1,10 @@
 # Munchie Gobbler
 a game by [Seanny Drakon Phoenix](https://www.linkedin.com/in/seannyphoenix/)
 
-[Game Link Here]()
+[Game Link Here](https://seannyphoenix.github.io/munchie-gobbler/)
 
 ## Concept
-I wanted to create a 2-player game, allowing players to compete against each other for the most points. **Munchie Gobbler** is inspired by classic games such as [*Snake*](https://en.wikipedia.org/wiki/Snake_(video_game_genre)), [*Nibbler*]() and [*Pac-Man*](https://en.wikipedia.org/wiki/Pac-Man). The players take turns controlling the **Blob**, which they move around the board to gobble **Munchies**, which may have positive or negative points. These points accumulate until all the **Munchies** have been gobbled. The final score is displayed.
+I wanted to create a 2-player game, allowing players to compete against each other for the most points. **Munchie Gobbler** is inspired by classic games such as [*Snake*](https://en.wikipedia.org/wiki/Snake_(video_game_genre)), [*Nibbler*](https://en.wikipedia.org/wiki/Nibbler_(video_game)) and [*Pac-Man*](https://en.wikipedia.org/wiki/Pac-Man). The players take turns controlling the **Blob**, which they move around the board to gobble **Munchies**, which may have positive or negative points. These points accumulate until all the **Munchies** have been gobbled. The final score is displayed.
 
 ### Stretch Features
 
