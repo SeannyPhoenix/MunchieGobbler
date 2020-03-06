@@ -157,10 +157,15 @@ class MunchieGobblerGame {
       this.blob.index,
       this.blob.blob);
 
+    let blockerCount = 0;
     switch (this.options.blockers) {
       case 'none':
         break;
       case 'mild':
+        blockerCount = randomizeInt({
+          lower: this.options.size() * .05,
+          upper: this.options.size() * .1,
+        });
         break;
       case 'medium':
         break;
@@ -204,6 +209,18 @@ class MunchieGobblerGame {
         munchieCount++;
       }
     }
+
+    upperLimit = blockerCount *= 1.5;
+    for (let i = 0; i < upperLimit; i++) {
+      let index = randomizeInt({
+        lower: 0,
+        upper: this.options.size(),
+      });
+      if (this.spaceCheck(index, true)) {
+        this.gameBoard.setItem(index, new Blocker());
+      }
+    }
+
     if (this.resetDialog.reset) {
       this.resetDialog.reset = false;
     }
@@ -212,9 +229,40 @@ class MunchieGobblerGame {
     }.bind(this));
   }
 
-  spaceCheck(index) {
+  spaceCheck(index, blocker) {
     if (this.gameBoard.getItem(index)) {
+      // Never place an item on another item
       return false;
+    }
+    if (blocker) {
+      //blockers must not create closed loops
+      let boardWidth = this.options.dimensions.x;
+      let boardSize = this.options.size();
+      let adjacentSquares = [
+        index - boardWidth - 1,
+        index - boardWidth,
+        index - boardWidth + 1,
+        index - 1,
+        index + 1,
+        index + boardWidth - 1,
+        index + boardWidth,
+        index + boardWidth + 1,
+      ];
+      for (let i = 0; i < adjacentSquares.length; i++) {
+        let square = adjacentSquares[i];
+        if (
+          square >= 0 &&
+          parseInt(square / boardWidth) === parseInt(index / boardWidth) &&
+          square < boardSize
+        ) {
+          // make sure we're not trying to check squares that are off the board
+          let item = this.gameBoard.getItem(square);
+          if (item && item.getType() === 'blocker') {
+            // cannot be adjacent to another blocker
+            return false;
+          }
+        }
+      }
     }
     return true;
   }
@@ -313,7 +361,7 @@ class MunchieGobblerGame {
       size: function() {
         return this.dimensions.x * this.dimensions.y;
       },
-      blockers: 'none',
+      blockers: 'mild',
       munchies: {
         availible: munchieStyles,
         chosen: [],
@@ -549,15 +597,16 @@ class MunchieGobblerGame {
         lastMove = this.blob.index;
       }
       nextMove = this.moveCalc[direction](lastMove, this.options.dimensions.x);
-      if (this.moveValidate[direction](
+      if ((this.moveValidate[direction](
           nextMove,
           lastMove,
           this.options.dimensions.x,
-          this.options.size())) {
+          this.options.size())) &&
+        (!(this.gameBoard.getItem(nextMove) instanceof Blocker))) {
         // Only add move if we're not off the board!
         move.spaces.push(nextMove);
+        showMoves(move);
       }
-      showMoves(move);
     }
   }
 }

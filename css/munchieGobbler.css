@@ -310,25 +310,32 @@ button {
   line-height: 38px;
 }
 
-.munchie, .blob {
+.munchie, .blob, .blocker {
   height: 38px;
   width: 38px;
   line-height: 38px;
   text-align: center;
   font-size: 1.6em;
-  color: var(--green);
   position: absolute;
   transform: scale(0);
   transition: transform 1s;
 }
 
+.munchie {
+  color: var(--green);
+}
+
+.blocker {
+  color: var(--orange);
+}
+
 .blob {
   border-radius: 50%;
-  background-color: var(--orange);
+  background-color: var(--yellow);
   animation: grow 1s 1, pulse 1s 1s infinite;
 }
 
-.pop-in, .munchie .pop-in {
+.pop-in {
   transform: scale(1);
 }
 
@@ -385,7 +392,7 @@ button {
 .arrow {
   position: absolute;
   font-size: 1.5em;
-  color: var(--orange);
+  color: var(--yellow);
   z-index: 10;
   /* animation: fadeIn .2s 1; */
 }
