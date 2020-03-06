@@ -155,7 +155,96 @@ aside {
   height: 200px;
 }
 
-.options {}
+.options>* {
+  position: absolute;
+}
+
+.options-title {
+  bottom: 466px;
+}
+
+.game-size {
+  height: 270px;
+  width: 270px;
+  bottom: 195px;
+  left: 10px;
+}
+
+.example {
+  height: 242px;
+  width: 242px;
+  position: absolute;
+  right: 0;
+  border: solid var(--green) 1px;
+  display: grid;
+  grid-auto-flow: row;
+}
+
+.example-square {
+  height: 22px;
+  width: 22px;
+  position: relative;
+  border: solid var(--green) 1px;
+}
+
+.slider {
+  position: absolute;
+  width: 174px;
+  height: 20px;
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--blue);
+  outline: none;
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--green);
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--green);
+  cursor: pointer;
+}
+
+.width {
+  right: 0;
+  bottom: 0;
+}
+
+.height {
+  top: 176px;
+  transform: rotate(-90deg);
+  transform-origin: 0 0;
+}
+
+.top-cover {
+  background-color: var(--yellow);
+  width: 243px;
+  height: 0;
+  position: absolute;
+  right: 0;
+  transition: height .2s;
+  transform: translateX(1px);
+}
+
+.right-cover {
+  background-color: var(--yellow);
+  height: 243px;
+  width: 0;
+  position: absolute;
+  right: 0;
+  transition: width .2s;
+  transform: translateX(1px);
+}
 
 .instructions {}
 
