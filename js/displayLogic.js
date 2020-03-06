@@ -403,11 +403,15 @@ function activatePayer(player) {
   switch (player) {
     case 'Player 1':
       elems.player1Score.classList.add('active');
-      elems.player2Score.classList.remove('active')
+      setTimeout(() => {
+        elems.player1Score.classList.remove('active')
+      }, 1000);
       break;
     case 'Player 2':
       elems.player2Score.classList.add('active');
-      elems.player1Score.classList.remove('active')
+      setTimeout(() => {
+        elems.player2Score.classList.remove('active')
+      }, 1000);
       break;
   }
 }
@@ -415,6 +419,17 @@ function activatePayer(player) {
 function updateScores(scores) {
   elems.player1Score.querySelector('.score').innerText = `Score: ${scores.player1}`;
   elems.player2Score.querySelector('.score').innerText = `Score: ${scores.player2}`;
+}
+
+function resetPlayers() {
+  let jar = elems.player1Score.querySelector('.munchie-jar').children;
+  Object.values(jar).forEach(munchie => {
+    munchie.remove();
+  });
+  jar = elems.player2Score.querySelector('.munchie-jar').children;
+  Object.values(jar).forEach(munchie => {
+    munchie.remove();
+  });
 }
 
 function addMunchie(munchie, player) {
@@ -433,25 +448,20 @@ function addMunchie(munchie, player) {
 
 function updatePromptStart(prompt) {
   let lines = elems.promptList.children;
-  for (let i = 0; i < lines.length; i++) {
-    lines[i].classList.add('leave');
-  }
+  Object.values(lines).forEach(line => {
+    line.remove();
+  });
   let welcome = document.createElement('h1');
   welcome.innerText = prompt.welcome;
   welcome.classList.add('prompt');
-  setTimeout(() => {
-    for (let i = 0; i < lines.length; i++) {
-      lines[i].remove();
-    }
-    elems.promptList.appendChild(welcome);
-  }, 700);
+  elems.promptList.appendChild(welcome);
 }
 
 function updatePromptPlayer(prompt, player) {
   let lines = elems.promptList.children;
-  for (let i = 0; i < lines.length; i++) {
-    lines[i].classList.add('leave');
-  }
+  Object.values(lines).forEach(line => {
+    line.remove();
+  });
   let line1 = document.createElement('h3');
   line1.innerText = player;
   line1.classList.add('prompt');
@@ -461,28 +471,33 @@ function updatePromptPlayer(prompt, player) {
   let line3 = document.createElement('h3');
   line3.innerText = prompt.playerLine3;
   line3.classList.add('prompt');
-  setTimeout(function() {
-    Object.values(lines).forEach(line => {
-      line.remove();
-    });
-    elems.promptList.appendChild(line1);
-    elems.promptList.appendChild(line2);
-    elems.promptList.appendChild(line3);
-  }.bind(lines), 700);
+  elems.promptList.appendChild(line1);
+  elems.promptList.appendChild(line2);
+  elems.promptList.appendChild(line3);
+}
+
+function updatePromptWinner(prompt, winnerInfo) {
+  let lines = elems.promptList.children;
+  Object.values(lines).forEach(line => {
+    line.remove();
+  });
+  let winner = document.createElement('h1');
+  winner.innerText = `${winnerInfo.name} ${prompt.winnerSection1} ${winnerInfo.score} ${prompt.winnerSection2}`;
+  winner.classList.add('prompt', 'winner');
+  let restart = document.createElement('h3');
+  restart.innerText = prompt.restart;
+  restart.classList.add('prompt');
+  elems.promptList.appendChild(winner);
+  elems.promptList.appendChild(restart);
 }
 
 function updatePromptPause(prompt) {
   let lines = elems.promptList.children;
-  for (let i = 0; i < lines.length; i++) {
-    lines[i].classList.add('leave');
-  }
+  Object.values(lines).forEach(line => {
+    line.remove();
+  });
   let pause = document.createElement('h2');
   pause.innerText = prompt.pause;
   pause.classList.add('prompt');
-  setTimeout(() => {
-    for (let i = 0; i < lines.length; i++) {
-      lines[0].remove();
-    }
-    elems.promptList.appendChild(pause);
-  }, 700);
+  elems.promptList.appendChild(pause);
 }

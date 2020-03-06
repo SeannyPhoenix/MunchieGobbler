@@ -76,88 +76,6 @@ class GameBoard {
   }
 }
 
-class Item {
-  constructor(name, points = 0, type) {
-    this.name = name;
-    this.type = type;
-    this.points = points;
-
-    this.element = document.createElement('div');
-    this.element.classList.add(this.type);
-  }
-
-  getElement() {
-    return this.element;
-  }
-
-  getType() {
-    return this.type;
-  }
-
-  getScore() {
-    return this.points;
-  }
-}
-
-class Munchie extends Item {
-  constructor(name, points) {
-    super(name, points, 'munchie');
-  }
-}
-
-class Blob extends Item {
-  constructor() {
-    super('blob', 0, 'blob');
-  }
-}
-
-class Players {
-  constructor() {
-    this.player1 = {
-      name: 'Player 1',
-      munchies: [],
-      score: 0,
-    };
-    this.player2 = {
-      name: 'Player 2',
-      munchies: [],
-      score: 0,
-    };
-    this.current = null;
-  }
-
-  name() {
-    return this.current.name;
-  }
-
-  switch () {
-    if (!this.current || this.current === this.player2) {
-      // Player 1 if there is no player or if Player 2 just went
-      this.current = this.player1;
-    } else {
-      // Otherwise, it's clearly Player 2
-      this.current = this.player2;
-    }
-  }
-
-  gobble(munchie) {
-    this.current.munchies.push(munchie);
-    this.current.score += munchie.getScore();
-    //this.current.score = this.current.munchies.map(munchie => munchie.getScore()).reduce((a, b) => a + b, 0);
-  }
-
-  score() {
-    return this.current.score;
-  }
-
-  scores() {
-    return {
-      player1: this.player1.score,
-      player2: this.player2.score,
-    }
-  }
-}
-
 class MunchieGobblerGame {
 
   /*
@@ -213,6 +131,7 @@ class MunchieGobblerGame {
 
     this.players = new Players();
     this.switchPlayer();
+    resetPlayers();
 
     this.munchiesPlaced = {};
 
@@ -291,7 +210,7 @@ class MunchieGobblerGame {
         upper: this.options.size(),
       });
       if (this.spaceCheck(index)) {
-        this.munchiesPlaced[index] = new Munchie('candy', 3);
+        this.munchiesPlaced[index] = new Munchie('candy', 1);
         this.gameBoard.setItem(index, this.munchiesPlaced[index]);
       } else {
         munchieCount++;
@@ -322,6 +241,7 @@ class MunchieGobblerGame {
   switchPlayer(player) {
     this.players.switch();
     activatePayer(this.players.name());
+    updateScores(this.players.scores());
     updatePromptPlayer(this.prompt, this.players.name());
   }
 
@@ -349,9 +269,10 @@ class MunchieGobblerGame {
 
       //Check if we have any more munchies left!
       if (this.munchiesLeft() === 0) {
-        this.pause = true;
+        // this.pause = true;
         this.currentGame = false;
         removeBoard();
+        updatePromptWinner(this.prompt, this.players.winner())
       } else {
         this.switchPlayer();
         this.gameBoard.removeItem(this.blob.index);
@@ -391,8 +312,8 @@ class MunchieGobblerGame {
 
   setOptions() {
     this.options = {
-      dimX: 11,
-      dimY: 11,
+      dimX: 7,
+      dimY: 7,
       size: function() {
         return this.dimX * this.dimY;
       },
@@ -481,7 +402,9 @@ class MunchieGobblerGame {
       pause: 'Press Esc to return to Game...',
       playerLine2: 'Tap the arrow keys to select where to move the Blob.',
       playerLine3: 'Press Space or Enter to finalize.',
-      winner: '$Player has won the game! They ate Munchies to earn $Points points!',
+      winnerSection1: 'won with',
+      winnerSection2: 'points!',
+      restart: 'Press Space or Enter to play again.',
     };
   }
 
@@ -594,7 +517,7 @@ class MunchieGobblerGame {
       this.resetDialog.show = false;
       this.pause = false;
       if (this.currentGame) {
-        updatePromptPlayer(this.prompt, this.players);
+        updatePromptPlayer(this.prompt, this.players.name());
       } else {
         updatePromptStart(this.prompt);
       }
@@ -635,4 +558,3 @@ class MunchieGobblerGame {
 }
 
 let thisGame = new MunchieGobblerGame();
-// thisGame.startGame();

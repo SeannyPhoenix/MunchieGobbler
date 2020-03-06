@@ -370,9 +370,9 @@ button {
   font-size: 1.3em;
 }
 
-.leave {
-  transform: scale(0);
-  transition: transform .5s;
+.winner {
+  color: var(--yellow);
+  text-shadow: 0 0 5px var(--orange);
 }
 
 @keyframes wooshIn {
